@@ -1,0 +1,37 @@
+#######################################
+# Syntax Coloring Map For LoRa
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+LoRa	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+
+beginPacket	KEYWORD2
+endPacket	KEYWORD2
+
+parsePacket	KEYWORD2
+packetRSSI	KEYWORD2
+
+write	KEYWORD2
+
+available	KEYWORD2
+read	KEYWORD2
+peek	KEYWORD2
+flush	KEYWORD2
+
+setPins	KEYWORD2
+packetRSSI	KEYWORD2
+dumpRegisters	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
