@@ -15,7 +15,7 @@ public:
   int endPacket();
 
   int parsePacket();
-  int packetRSSI();
+  int packetRssi();
 
   // from Print
   virtual size_t write(uint8_t byte);

@@ -94,7 +94,7 @@ Returns the packet size or `0` if no packet was received.
 ### Packet RSSI
 
 ```arduino
-int rssi = LoRa.packetRSSI();
+int rssi = LoRa.packetRssi();
 ```
 
 Returns the RSSI of the received packet.

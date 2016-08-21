@@ -154,7 +154,7 @@ int LoRaClass::parsePacket()
   return packetLength;
 }
 
-int LoRaClass::packetRSSI()
+int LoRaClass::packetRssi()
 {
   return (readRegister(REG_PKT_RSSI_VALUE) - 164);
 }

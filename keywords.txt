@@ -19,7 +19,7 @@ beginPacket	KEYWORD2
 endPacket	KEYWORD2
 
 parsePacket	KEYWORD2
-packetRSSI	KEYWORD2
+packetRssi	KEYWORD2
 
 write	KEYWORD2
 
