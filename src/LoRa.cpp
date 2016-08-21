@@ -6,6 +6,7 @@
 #define REG_FRF_MSB              0x06
 #define REG_FRF_MID              0x07
 #define REG_FRF_LSB              0x08
+#define REG_PA_CONFIG            0x09
 #define REG_FIFO_ADDR_PTR        0x0d
 #define REG_FIFO_TX_BASE_ADDR    0x0e
 #define REG_FIFO_RX_BASE_ADDR    0x0f
@@ -22,6 +23,9 @@
 #define MODE_STDBY               0x01
 #define MODE_TX                  0x03
 #define MODE_RX_SINGLE           0x06
+
+// PA config
+#define PA_BOOST                 0x80
 
 // IRQ masks
 #define IRQ_TX_DONE_MASK         0x08
@@ -72,6 +76,9 @@ int LoRaClass::begin(long frequency)
   // set base addresses
   writeRegister(REG_FIFO_TX_BASE_ADDR, 0);
   writeRegister(REG_FIFO_RX_BASE_ADDR, 0);
+
+  // set output power to 17 dBm
+  writeRegister(REG_PA_CONFIG, PA_BOOST | 0x0f);
 
   // put in standby mode
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_STDBY);
