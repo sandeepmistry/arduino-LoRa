@@ -40,6 +40,7 @@ private:
   SPISettings _spiSettings;
   int _ss;
   int _reset;
+  int _frequency;
   int _packetIndex;
 };
 

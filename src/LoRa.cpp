@@ -36,12 +36,15 @@
 LoRaClass::LoRaClass() :
   _spiSettings(10E6, MSBFIRST, SPI_MODE0),
   _ss(10), _reset(9),
+  _frequency(0),
   _packetIndex(0)
 {
 }
 
 int LoRaClass::begin(long frequency)
 {
+  _frequency = frequency;
+
   // setup pins
   pinMode(_ss, OUTPUT);
   pinMode(_reset, OUTPUT);
@@ -156,7 +159,7 @@ int LoRaClass::parsePacket()
 
 int LoRaClass::packetRssi()
 {
-  return (readRegister(REG_PKT_RSSI_VALUE) - 164);
+  return (readRegister(REG_PKT_RSSI_VALUE) - (_frequency < 868E6 ? 164 : 157));
 }
 
 size_t LoRaClass::write(uint8_t byte)
