@@ -29,7 +29,6 @@ peek	KEYWORD2
 flush	KEYWORD2
 
 setPins	KEYWORD2
-packetRSSI	KEYWORD2
 dumpRegisters	KEYWORD2
 
 #######################################
