@@ -21,9 +21,10 @@ An [Arduino](http://arduino.cc/) library for sending and receiving data using [L
 | MOSI | MOSI |
 | NSS | 10 |
 | NRESET | 9 |
+| DIO0 | 2 |
 
 
-`NSS` and `NRESET` pins can be changed by using `LoRa.setPins(ss, reset)`.
+`NSS`, `NRESET`, and `DIO0` pins can be changed by using `LoRa.setPins(ss, reset, dio0)`. `DIO0` pin is optional, it is only needed for receive callback mode.
 
 ## Installation
 

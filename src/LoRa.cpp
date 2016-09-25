@@ -15,6 +15,7 @@
 #define REG_RX_NB_BYTES          0x13
 #define REG_PKT_RSSI_VALUE       0x1a
 #define REG_PAYLOAD_LENGTH       0x22
+#define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
 
 // modes
@@ -22,6 +23,7 @@
 #define MODE_SLEEP               0x00
 #define MODE_STDBY               0x01
 #define MODE_TX                  0x03
+#define MODE_RX_CONTINUOUS       0x05
 #define MODE_RX_SINGLE           0x06
 
 // PA config
@@ -35,9 +37,10 @@
 
 LoRaClass::LoRaClass() :
   _spiSettings(10E6, MSBFIRST, SPI_MODE0),
-  _ss(10), _reset(9),
+  _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
-  _packetIndex(0)
+  _packetIndex(0),
+  _onReceive(NULL)
 {
 }
 
@@ -225,10 +228,39 @@ void LoRaClass::flush()
 {
 }
 
-void LoRaClass::setPins(int ss, int reset)
+void LoRaClass::onReceive(void(*callback)(int))
+{
+  _onReceive = callback;
+
+  if (callback) {
+    writeRegister(REG_DIO_MAPPING_1, 0x00);
+
+    attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
+  } else {
+    detachInterrupt(digitalPinToInterrupt(_dio0));
+  }
+}
+
+void LoRaClass::receive()
+{
+  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
+}
+
+void LoRaClass::idle()
+{
+  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_STDBY);
+}
+
+void LoRaClass::sleep()
+{
+  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
+}
+
+void LoRaClass::setPins(int ss, int reset, int dio0)
 {
   _ss = ss;
   _reset = reset;
+  _dio0 = dio0;
 }
 
 void LoRaClass::dumpRegisters(Stream& out)
@@ -239,6 +271,30 @@ void LoRaClass::dumpRegisters(Stream& out)
     out.print(": 0x");
     out.println(readRegister(i), HEX);
   }
+}
+
+void LoRaClass::handleDio0Rise()
+{
+  int irqFlags = readRegister(REG_IRQ_FLAGS);
+
+  // clear IRQ's
+  writeRegister(REG_IRQ_FLAGS, irqFlags);
+
+  // received a packet
+  _packetIndex = 0;
+
+  // read packet length
+  int packetLength = readRegister(REG_RX_NB_BYTES);
+
+  // set FIFO address to current RX address
+  writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
+
+  if (_onReceive) {
+    _onReceive(packetLength);
+  }
+
+  // reset FIFO address
+  writeRegister(REG_FIFO_ADDR_PTR, 0);
 }
 
 uint8_t LoRaClass::readRegister(uint8_t address)
@@ -265,6 +321,11 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
   digitalWrite(_ss, HIGH);
 
   return response;
+}
+
+void LoRaClass::onDio0Rise()
+{
+  LoRa.handleDio0Rise();
 }
 
 LoRaClass LoRa;

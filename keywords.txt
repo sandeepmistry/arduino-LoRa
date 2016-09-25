@@ -28,6 +28,11 @@ read	KEYWORD2
 peek	KEYWORD2
 flush	KEYWORD2
 
+onReceive	KEYWORD2
+receive	KEYWORD2
+idle	KEYWORD2
+sleep	KEYWORD2
+
 setPins	KEYWORD2
 dumpRegisters	KEYWORD2
 

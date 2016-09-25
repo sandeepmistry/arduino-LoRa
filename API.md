@@ -24,10 +24,11 @@ Returns `1` on success, `0` on failure.
 Override the default `NSS` and `NRESET` pins used by the library. **Must** be called before `LoRa.begin()`.
 
 ```arduino
-LoRa.setPins(ss, reset);
+LoRa.setPins(ss, reset, dio0);
 ```
  * `ss` new slave select pin to use, defaults to `10`
  * `reset` new reset pin to use, defaults to `9`
+ * `dio0` new DIO0 pin to use, defaults to `2`
 
 ### End
 
