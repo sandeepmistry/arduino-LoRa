@@ -119,7 +119,7 @@ int LoRaClass::endPacket()
   while((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0);
 
   // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, 0xff);
+  writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
 
   return 1;
 }
@@ -130,7 +130,7 @@ int LoRaClass::parsePacket()
   int irqFlags = readRegister(REG_IRQ_FLAGS);
 
   // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, 0xff);
+  writeRegister(REG_IRQ_FLAGS, irqFlags);
 
   if (irqFlags & IRQ_RX_DONE_MASK) {
     // received a packet
