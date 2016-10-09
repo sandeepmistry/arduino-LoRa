@@ -14,7 +14,14 @@
 #define REG_IRQ_FLAGS            0x12
 #define REG_RX_NB_BYTES          0x13
 #define REG_PKT_RSSI_VALUE       0x1a
+#define REG_MODEM_CONFIG_1       0x1d
+#define REG_MODEM_CONFIG_2       0x1e
+#define REG_PREAMBLE_MSB         0x20
+#define REG_PREAMBLE_LSB         0x21
 #define REG_PAYLOAD_LENGTH       0x22
+#define REG_DETECTION_OPTIMIZE   0x31
+#define REG_DETECTION_THRESHOLD  0x37
+#define REG_SYNC_WORD            0x39
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
 
@@ -30,8 +37,9 @@
 #define PA_BOOST                 0x80
 
 // IRQ masks
-#define IRQ_TX_DONE_MASK         0x08
-#define IRQ_RX_DONE_MASK         0x40
+#define IRQ_TX_DONE_MASK           0x08
+#define IRQ_PAYLOAD_CRC_ERROR_MASK 0x20
+#define IRQ_RX_DONE_MASK           0x40
 
 #define MAX_PKT_LENGTH           255
 
@@ -135,7 +143,7 @@ int LoRaClass::parsePacket()
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
 
-  if (irqFlags & IRQ_RX_DONE_MASK) {
+  if ((irqFlags & IRQ_RX_DONE_MASK) && (irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
     // received a packet
     _packetIndex = 0;
 
@@ -256,6 +264,95 @@ void LoRaClass::sleep()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
 }
 
+void LoRaClass::setTxPower(int level)
+{
+  if (level < 2) {
+    level = 2;
+  } else if (level > 17) {
+    level = 17;
+  }
+
+  writeRegister(REG_PA_CONFIG, PA_BOOST | (level - 2));
+}
+
+void LoRaClass::setSpreadingFactor(int sf)
+{
+  if (sf < 7) {
+    sf = 7;
+  } else if (sf > 12) {
+    sf = 12;
+  }
+
+  writeRegister(REG_MODEM_CONFIG_1, readRegister(REG_MODEM_CONFIG_1) & 0xfe);
+  writeRegister(REG_DETECTION_OPTIMIZE, 0xc3);
+  writeRegister(REG_DETECTION_THRESHOLD, 0x0a);
+
+  writeRegister(REG_MODEM_CONFIG_2, (readRegister(REG_MODEM_CONFIG_2) & 0x0f) | ((sf << 4) & 0xf0));
+}
+
+void LoRaClass::setSignalBandwidth(long sbw)
+{
+  int bw;
+
+  if (sbw <= 7.8E3) {
+    bw = 0;
+  } else if (sbw <= 10.4E3) {
+    bw = 1;
+  } else if (sbw <= 15.6E3) {
+    bw = 2;
+  } else if (sbw <= 20.8E3) {
+    bw = 3;
+  } else if (sbw <= 31.25E3) {
+    bw = 4;
+  } else if (sbw <= 41.7E3) {
+    bw = 5;
+  } else if (sbw <= 62.5E3) {
+    bw = 6;
+  } else if (sbw <= 125E3) {
+    bw = 7;
+  } else if (sbw <= 250E3) {
+    bw = 8;
+  } else /*if (sbw <= 250E3)*/ {
+    bw = 9;
+  }
+
+  writeRegister(REG_MODEM_CONFIG_1, (readRegister(REG_MODEM_CONFIG_1) & 0x0f) | (bw << 4));
+}
+
+void LoRaClass::setCodingRate4(int denominator)
+{
+  if (denominator < 5) {
+    denominator = 5;
+  } else if (denominator > 8) {
+    denominator = 8;
+  }
+
+  int cr = denominator - 4;
+
+  writeRegister(REG_MODEM_CONFIG_1, (readRegister(REG_MODEM_CONFIG_1) & 0xf1) | (cr << 1));
+}
+
+void LoRaClass::setPreambleLength(unsigned long length)
+{
+  writeRegister(REG_PREAMBLE_MSB, (uint8_t)(length >> 8));
+  writeRegister(REG_PREAMBLE_LSB, (uint8_t)(length >> 0));
+}
+
+void LoRaClass::setSyncWord(int sw)
+{
+  writeRegister(REG_SYNC_WORD, sw);
+}
+
+void LoRaClass::crc()
+{
+  writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) | 0x04);
+}
+
+void LoRaClass::noCrc()
+{
+  writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
+}
+
 void LoRaClass::setPins(int ss, int reset, int dio0)
 {
   _ss = ss;
@@ -280,21 +377,23 @@ void LoRaClass::handleDio0Rise()
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
 
-  // received a packet
-  _packetIndex = 0;
+  if ((irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
+    // received a packet
+    _packetIndex = 0;
 
-  // read packet length
-  int packetLength = readRegister(REG_RX_NB_BYTES);
+    // read packet length
+    int packetLength = readRegister(REG_RX_NB_BYTES);
 
-  // set FIFO address to current RX address
-  writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
+    // set FIFO address to current RX address
+    writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
 
-  if (_onReceive) {
-    _onReceive(packetLength);
+    if (_onReceive) {
+      _onReceive(packetLength);
+    }
+
+    // reset FIFO address
+    writeRegister(REG_FIFO_ADDR_PTR, 0);
   }
-
-  // reset FIFO address
-  writeRegister(REG_FIFO_ADDR_PTR, 0);
 }
 
 uint8_t LoRaClass::readRegister(uint8_t address)

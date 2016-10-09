@@ -37,6 +37,15 @@ public:
   void idle();
   void sleep();
 
+  void setTxPower(int level);
+  void setSpreadingFactor(int sf);
+  void setSignalBandwidth(long sbw);
+  void setCodingRate4(int denominator);
+  void setPreambleLength(unsigned long length);
+  void setSyncWord(int sw);
+  void crc();
+  void noCrc();
+
   void setPins(int ss = LORA_DEFAULT_SS_PIN, int reset = LORA_DEFAULT_RESET_PIN, int dio0 = LORA_DEFAULT_DIO0_PIN);
 
   void dumpRegisters(Stream& out);
