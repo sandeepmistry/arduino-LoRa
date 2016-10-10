@@ -54,8 +54,6 @@ LoRaClass::LoRaClass() :
 
 int LoRaClass::begin(long frequency)
 {
-  _frequency = frequency;
-
   // setup pins
   pinMode(_ss, OUTPUT);
   pinMode(_reset, OUTPUT);
@@ -79,23 +77,20 @@ int LoRaClass::begin(long frequency)
   }
 
   // put in sleep mode
-  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
+  sleep();
 
   // set frequency
-  uint64_t frf = ((uint64_t)frequency << 19) / 32000000;
-  writeRegister(REG_FRF_MSB, (uint8_t)(frf >> 16));
-  writeRegister(REG_FRF_MID, (uint8_t)(frf >> 8));
-  writeRegister(REG_FRF_LSB, (uint8_t)(frf >> 0));
+  setFrequency(frequency);
 
   // set base addresses
   writeRegister(REG_FIFO_TX_BASE_ADDR, 0);
   writeRegister(REG_FIFO_RX_BASE_ADDR, 0);
 
   // set output power to 17 dBm
-  writeRegister(REG_PA_CONFIG, PA_BOOST | 0x0f);
+  setTxPower(17);
 
   // put in standby mode
-  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_STDBY);
+  idle();
 
   return 1;
 }
@@ -103,7 +98,7 @@ int LoRaClass::begin(long frequency)
 void LoRaClass::end()
 {
   // put in sleep mode
-  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
+  sleep();
 
   // stop SPI
   SPI.end();
@@ -112,7 +107,7 @@ void LoRaClass::end()
 int LoRaClass::beginPacket()
 {
   // put in standby mode
-  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_STDBY);
+  idle();
 
   // reset FIFO address and paload length
   writeRegister(REG_FIFO_ADDR_PTR, 0);
@@ -154,7 +149,7 @@ int LoRaClass::parsePacket()
     writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
 
     // put in standby mode
-    writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_STDBY);
+    idle();
   } else if (readRegister(REG_OP_MODE) != (MODE_LONG_RANGE_MODE | MODE_RX_SINGLE)) {
     // not currently in RX mode
 
