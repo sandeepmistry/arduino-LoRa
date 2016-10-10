@@ -37,6 +37,7 @@ public:
   void idle();
   void sleep();
 
+  void setFrequency(long frequency);
   void setTxPower(int level);
   void setSpreadingFactor(int sf);
   void setSignalBandwidth(long sbw);

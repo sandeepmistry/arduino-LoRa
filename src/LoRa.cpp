@@ -264,6 +264,17 @@ void LoRaClass::sleep()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
 }
 
+void LoRaClass::setFrequency(long frequency)
+{
+  _frequency = frequency;
+
+  uint64_t frf = ((uint64_t)frequency << 19) / 32000000;
+
+  writeRegister(REG_FRF_MSB, (uint8_t)(frf >> 16));
+  writeRegister(REG_FRF_MID, (uint8_t)(frf >> 8));
+  writeRegister(REG_FRF_LSB, (uint8_t)(frf >> 0));
+}
+
 void LoRaClass::setTxPower(int level)
 {
   if (level < 2) {

@@ -33,6 +33,7 @@ receive	KEYWORD2
 idle	KEYWORD2
 sleep	KEYWORD2
 
+setFrequency	KEYWORD2
 setTxPower	KEYWORD2
 setSpreadingFactor	KEYWORD2
 setSignalBandwidth	KEYWORD2
