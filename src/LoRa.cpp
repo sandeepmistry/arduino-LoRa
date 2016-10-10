@@ -7,6 +7,7 @@
 #define REG_FRF_MID              0x07
 #define REG_FRF_LSB              0x08
 #define REG_PA_CONFIG            0x09
+#define REG_LNA                  0x0c
 #define REG_FIFO_ADDR_PTR        0x0d
 #define REG_FIFO_TX_BASE_ADDR    0x0e
 #define REG_FIFO_RX_BASE_ADDR    0x0f
@@ -85,6 +86,9 @@ int LoRaClass::begin(long frequency)
   // set base addresses
   writeRegister(REG_FIFO_TX_BASE_ADDR, 0);
   writeRegister(REG_FIFO_RX_BASE_ADDR, 0);
+
+  // set LNA boost
+  writeRegister(REG_LNA, readRegister(REG_LNA) | 0x03);
 
   // set output power to 17 dBm
   setTxPower(17);
