@@ -20,6 +20,7 @@ endPacket	KEYWORD2
 
 parsePacket	KEYWORD2
 packetRssi	KEYWORD2
+packetSnr	KEYWORD2
 
 write	KEYWORD2
 
@@ -32,6 +33,8 @@ onReceive	KEYWORD2
 receive	KEYWORD2
 idle	KEYWORD2
 sleep	KEYWORD2
+
+random	KEYWORD2
 
 setFrequency	KEYWORD2
 setTxPower	KEYWORD2

@@ -20,6 +20,7 @@ public:
 
   int parsePacket();
   int packetRssi();
+  float packetSnr();
 
   // from Print
   virtual size_t write(uint8_t byte);
@@ -36,6 +37,8 @@ public:
   void receive();
   void idle();
   void sleep();
+
+  byte random();
 
   void setFrequency(long frequency);
   void setTxPower(int level);

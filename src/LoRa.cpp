@@ -15,11 +15,13 @@
 #define REG_IRQ_FLAGS            0x12
 #define REG_RX_NB_BYTES          0x13
 #define REG_PKT_RSSI_VALUE       0x1a
+#define REG_PKT_SNR_VALUE        0x1b
 #define REG_MODEM_CONFIG_1       0x1d
 #define REG_MODEM_CONFIG_2       0x1e
 #define REG_PREAMBLE_MSB         0x20
 #define REG_PREAMBLE_LSB         0x21
 #define REG_PAYLOAD_LENGTH       0x22
+#define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
@@ -172,6 +174,11 @@ int LoRaClass::packetRssi()
   return (readRegister(REG_PKT_RSSI_VALUE) - (_frequency < 868E6 ? 164 : 157));
 }
 
+float LoRaClass::packetSnr()
+{
+  return ((int8_t)readRegister(REG_PKT_SNR_VALUE)) * 0.25;
+}
+
 size_t LoRaClass::write(uint8_t byte)
 {
   return write(&byte, sizeof(byte));
@@ -261,6 +268,11 @@ void LoRaClass::idle()
 void LoRaClass::sleep()
 {
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
+}
+
+byte LoRaClass::random()
+{
+  return readRegister(REG_RSSI_WIDEBAND);
 }
 
 void LoRaClass::setFrequency(long frequency)
