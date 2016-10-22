@@ -111,7 +111,7 @@ void LoRaClass::end()
   SPI.end();
 }
 
-int LoRaClass::beginPacket(bool implicitHeader)
+int LoRaClass::beginPacket(int implicitHeader)
 {
   // put in standby mode
   idle();

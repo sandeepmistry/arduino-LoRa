@@ -15,7 +15,7 @@ public:
   int begin(long frequency);
   void end();
 
-  int beginPacket(bool implicitHeader = false);
+  int beginPacket(int implicitHeader = false);
   int endPacket();
 
   int parsePacket(int size = 0);
