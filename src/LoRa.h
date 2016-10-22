@@ -15,10 +15,10 @@ public:
   int begin(long frequency);
   void end();
 
-  int beginPacket();
+  int beginPacket(bool implicitHeader = false);
   int endPacket();
 
-  int parsePacket();
+  int parsePacket(int size = 0);
   int packetRssi();
   float packetSnr();
 
@@ -34,7 +34,7 @@ public:
 
   void onReceive(void(*callback)(int));
 
-  void receive();
+  void receive(int size = 0);
   void idle();
   void sleep();
 
@@ -55,6 +55,9 @@ public:
   void dumpRegisters(Stream& out);
 
 private:
+  void explicitHeaderMode();
+  void implicitHeaderMode();
+
   void handleDio0Rise();
 
   uint8_t readRegister(uint8_t address);
@@ -70,6 +73,7 @@ private:
   int _dio0;
   int _frequency;
   int _packetIndex;
+  int _implicitHeaderMode;
   void (*_onReceive)(int);
 };
 

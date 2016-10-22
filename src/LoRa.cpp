@@ -51,6 +51,7 @@ LoRaClass::LoRaClass() :
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
   _packetIndex(0),
+  _implicitHeaderMode(0),
   _onReceive(NULL)
 {
 }
@@ -110,10 +111,16 @@ void LoRaClass::end()
   SPI.end();
 }
 
-int LoRaClass::beginPacket()
+int LoRaClass::beginPacket(bool implicitHeader)
 {
   // put in standby mode
   idle();
+
+  if (implicitHeader) {
+    implicitHeaderMode();
+  } else {
+    explicitHeaderMode();
+  }
 
   // reset FIFO address and paload length
   writeRegister(REG_FIFO_ADDR_PTR, 0);
@@ -136,10 +143,18 @@ int LoRaClass::endPacket()
   return 1;
 }
 
-int LoRaClass::parsePacket()
+int LoRaClass::parsePacket(int size)
 {
   int packetLength = 0;
   int irqFlags = readRegister(REG_IRQ_FLAGS);
+
+  if (size > 0) {
+    implicitHeaderMode();
+
+    writeRegister(REG_PAYLOAD_LENGTH, size & 0xff);
+  } else {
+    explicitHeaderMode();
+  }
 
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
@@ -149,7 +164,11 @@ int LoRaClass::parsePacket()
     _packetIndex = 0;
 
     // read packet length
-    packetLength = readRegister(REG_RX_NB_BYTES);
+    if (_implicitHeaderMode) {
+      packetLength = readRegister(REG_PAYLOAD_LENGTH);
+    } else {
+      packetLength = readRegister(REG_RX_NB_BYTES);
+    }
 
     // set FIFO address to current RX address
     writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
@@ -255,8 +274,16 @@ void LoRaClass::onReceive(void(*callback)(int))
   }
 }
 
-void LoRaClass::receive()
+void LoRaClass::receive(int size)
 {
+  if (size > 0) {
+    implicitHeaderMode();
+
+    writeRegister(REG_PAYLOAD_LENGTH, size & 0xff);
+  } else {
+    explicitHeaderMode();
+  }
+
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
 }
 
@@ -299,15 +326,19 @@ void LoRaClass::setTxPower(int level)
 
 void LoRaClass::setSpreadingFactor(int sf)
 {
-  if (sf < 7) {
-    sf = 7;
+  if (sf < 6) {
+    sf = 6;
   } else if (sf > 12) {
     sf = 12;
   }
 
-  writeRegister(REG_MODEM_CONFIG_1, readRegister(REG_MODEM_CONFIG_1) & 0xfe);
-  writeRegister(REG_DETECTION_OPTIMIZE, 0xc3);
-  writeRegister(REG_DETECTION_THRESHOLD, 0x0a);
+  if (sf == 6) {
+    writeRegister(REG_DETECTION_OPTIMIZE, 0xc5);
+    writeRegister(REG_DETECTION_THRESHOLD, 0x0c);
+  } else {
+    writeRegister(REG_DETECTION_OPTIMIZE, 0xc3);
+    writeRegister(REG_DETECTION_THRESHOLD, 0x0a);
+  }
 
   writeRegister(REG_MODEM_CONFIG_2, (readRegister(REG_MODEM_CONFIG_2) & 0x0f) | ((sf << 4) & 0xf0));
 }
@@ -392,6 +423,20 @@ void LoRaClass::dumpRegisters(Stream& out)
   }
 }
 
+void LoRaClass::explicitHeaderMode()
+{
+  _implicitHeaderMode = 0;
+
+  writeRegister(REG_MODEM_CONFIG_1, readRegister(REG_MODEM_CONFIG_1) & 0xfe);
+}
+
+void LoRaClass::implicitHeaderMode()
+{
+  _implicitHeaderMode = 1;
+
+  writeRegister(REG_MODEM_CONFIG_1, readRegister(REG_MODEM_CONFIG_1) | 0x01);
+}
+
 void LoRaClass::handleDio0Rise()
 {
   int irqFlags = readRegister(REG_IRQ_FLAGS);
@@ -404,7 +449,7 @@ void LoRaClass::handleDio0Rise()
     _packetIndex = 0;
 
     // read packet length
-    int packetLength = readRegister(REG_RX_NB_BYTES);
+    int packetLength = _implicitHeaderMode ? readRegister(REG_PAYLOAD_LENGTH) : readRegister(REG_RX_NB_BYTES);
 
     // set FIFO address to current RX address
     writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
