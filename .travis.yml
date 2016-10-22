@@ -22,7 +22,7 @@ before_install:
   - buildExampleSketch() { arduino --verbose-build --verify --board $BOARD $PWD/examples/$1/$1.ino; }
 install:
   - mkdir -p $HOME/Arduino/libraries
-  - ln -s $PWD $HOME/Arduino/libraries/.
+  - ln -s $PWD $HOME/Arduino/libraries/LoRa
 script:
   - buildExampleSketch LoRaReceiver
   - buildExampleSketch LoRaReceiverCallback
