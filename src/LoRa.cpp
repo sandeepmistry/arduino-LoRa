@@ -297,9 +297,15 @@ void LoRaClass::sleep()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
 }
 
-byte LoRaClass::random()
+void LoRaClass::setTxPower(int level)
 {
-  return readRegister(REG_RSSI_WIDEBAND);
+  if (level < 2) {
+    level = 2;
+  } else if (level > 17) {
+    level = 17;
+  }
+
+  writeRegister(REG_PA_CONFIG, PA_BOOST | (level - 2));
 }
 
 void LoRaClass::setFrequency(long frequency)
@@ -311,17 +317,6 @@ void LoRaClass::setFrequency(long frequency)
   writeRegister(REG_FRF_MSB, (uint8_t)(frf >> 16));
   writeRegister(REG_FRF_MID, (uint8_t)(frf >> 8));
   writeRegister(REG_FRF_LSB, (uint8_t)(frf >> 0));
-}
-
-void LoRaClass::setTxPower(int level)
-{
-  if (level < 2) {
-    level = 2;
-  } else if (level > 17) {
-    level = 17;
-  }
-
-  writeRegister(REG_PA_CONFIG, PA_BOOST | (level - 2));
 }
 
 void LoRaClass::setSpreadingFactor(int sf)
@@ -385,7 +380,7 @@ void LoRaClass::setCodingRate4(int denominator)
   writeRegister(REG_MODEM_CONFIG_1, (readRegister(REG_MODEM_CONFIG_1) & 0xf1) | (cr << 1));
 }
 
-void LoRaClass::setPreambleLength(unsigned long length)
+void LoRaClass::setPreambleLength(long length)
 {
   writeRegister(REG_PREAMBLE_MSB, (uint8_t)(length >> 8));
   writeRegister(REG_PREAMBLE_LSB, (uint8_t)(length >> 0));
@@ -404,6 +399,11 @@ void LoRaClass::crc()
 void LoRaClass::noCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
+}
+
+byte LoRaClass::random()
+{
+  return readRegister(REG_RSSI_WIDEBAND);
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)

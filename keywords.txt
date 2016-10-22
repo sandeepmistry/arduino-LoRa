@@ -34,10 +34,8 @@ receive	KEYWORD2
 idle	KEYWORD2
 sleep	KEYWORD2
 
-random	KEYWORD2
-
-setFrequency	KEYWORD2
 setTxPower	KEYWORD2
+setFrequency	KEYWORD2
 setSpreadingFactor	KEYWORD2
 setSignalBandwidth	KEYWORD2
 setCodingRate4	KEYWORD2
@@ -46,6 +44,7 @@ setSyncWord	KEYWORD2
 crc	KEYWORD2
 noCrc	KEYWORD2
 
+random	KEYWORD2
 setPins	KEYWORD2
 dumpRegisters	KEYWORD2
 

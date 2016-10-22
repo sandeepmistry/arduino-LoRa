@@ -38,17 +38,17 @@ public:
   void idle();
   void sleep();
 
-  byte random();
-
-  void setFrequency(long frequency);
   void setTxPower(int level);
+  void setFrequency(long frequency);
   void setSpreadingFactor(int sf);
   void setSignalBandwidth(long sbw);
   void setCodingRate4(int denominator);
-  void setPreambleLength(unsigned long length);
+  void setPreambleLength(long length);
   void setSyncWord(int sw);
   void crc();
   void noCrc();
+
+  byte random();
 
   void setPins(int ss = LORA_DEFAULT_SS_PIN, int reset = LORA_DEFAULT_RESET_PIN, int dio0 = LORA_DEFAULT_DIO0_PIN);
 
