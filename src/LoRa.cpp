@@ -297,15 +297,27 @@ void LoRaClass::sleep()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
 }
 
-void LoRaClass::setTxPower(int level)
+void LoRaClass::setTxPower(int level, int outputPin)
 {
-  if (level < 2) {
-    level = 2;
-  } else if (level > 17) {
-    level = 17;
-  }
+  if (PA_OUTPUT_RFO_PIN == outputPin) {
+    // RFO
+    if (level < 0) {
+      level = 0;
+    } else if (level > 14) {
+      level = 14;
+    }
 
-  writeRegister(REG_PA_CONFIG, PA_BOOST | (level - 2));
+    writeRegister(REG_PA_CONFIG, 0x70 | level);
+  } else {
+    // PA BOOST
+    if (level < 2) {
+      level = 2;
+    } else if (level > 17) {
+      level = 17;
+    }
+
+    writeRegister(REG_PA_CONFIG, PA_BOOST | (level - 2));
+  }
 }
 
 void LoRaClass::setFrequency(long frequency)

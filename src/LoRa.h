@@ -8,6 +8,9 @@
 #define LORA_DEFAULT_RESET_PIN 9
 #define LORA_DEFAULT_DIO0_PIN  2
 
+#define PA_OUTPUT_RFO_PIN      0
+#define PA_OUTPUT_PA_BOOST_PIN 1
+
 class LoRaClass : public Stream {
 public:
   LoRaClass();
@@ -38,7 +41,7 @@ public:
   void idle();
   void sleep();
 
-  void setTxPower(int level);
+  void setTxPower(int level, int outputPin = PA_OUTPUT_PA_BOOST_PIN);
   void setFrequency(long frequency);
   void setSpreadingFactor(int sf);
   void setSignalBandwidth(long sbw);

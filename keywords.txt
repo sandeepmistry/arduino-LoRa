@@ -52,3 +52,6 @@ dumpRegisters	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
+
+PA_OUTPUT_RFO_PIN	LITERAL1
+PA_OUTPUT_PA_BOOST_PIN	LITERAL1
