@@ -32,6 +32,17 @@ LoRa.setPins(ss, reset, dio0);
 
 This call is optional and only needs to be used if you need to change the default pins used.
 
+### Set SPI Frequency
+
+Override the default SPI frequency of 10 MHz used by the library. **Must** be called before `LoRa.begin()`.
+
+```arduino
+LoRa.setSPIFrequency(frequency);
+```
+ * `frequency` - new SPI frequency to use, defaults to `10E6`
+
+This call is optional and only needs to be used if you need to change the default SPI frequency used. Some logic level converters cannot support high speeds such as 10 MHz, so a lower SPI frequency can be selected with `LoRa.setSPIFrequency(frequency)`.
+
 ### End
 
 Stop the library

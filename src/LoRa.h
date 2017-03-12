@@ -51,6 +51,7 @@ public:
   byte random();
 
   void setPins(int ss = LORA_DEFAULT_SS_PIN, int reset = LORA_DEFAULT_RESET_PIN, int dio0 = LORA_DEFAULT_DIO0_PIN);
+  void setSPIFrequency(uint32_t frequency);
 
   void dumpRegisters(Stream& out);
 
