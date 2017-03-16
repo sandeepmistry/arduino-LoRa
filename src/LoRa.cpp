@@ -21,6 +21,7 @@
 #define REG_PREAMBLE_MSB         0x20
 #define REG_PREAMBLE_LSB         0x21
 #define REG_PAYLOAD_LENGTH       0x22
+#define REG_MODEM_CONFIG_3       0x26
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
 #define REG_DETECTION_THRESHOLD  0x37
@@ -92,6 +93,9 @@ int LoRaClass::begin(long frequency)
 
   // set LNA boost
   writeRegister(REG_LNA, readRegister(REG_LNA) | 0x03);
+
+  // set auto AGC
+  writeRegister(REG_MODEM_CONFIG_3, 0x04);
 
   // set output power to 17 dBm
   setTxPower(17);
