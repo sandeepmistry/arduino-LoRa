@@ -28,7 +28,7 @@ LoRa.setPins(ss, reset, dio0);
 ```
  * `ss` - new slave select pin to use, defaults to `10`
  * `reset` - new reset pin to use, defaults to `9`
- * `dio0` - new DIO0 pin to use, defaults to `2`
+ * `dio0` - new DIO0 pin to use, defaults to `2`.  **Must** be interrupt capable via [attachInterrupt(...)](https://www.arduino.cc/en/Reference/AttachInterrupt).
 
 This call is optional and only needs to be used if you need to change the default pins used.
 
