@@ -48,7 +48,7 @@
 #define MAX_PKT_LENGTH           255
 
 LoRaClass::LoRaClass() :
-  _spiSettings(10E6, MSBFIRST, SPI_MODE0),
+  _spiSettings(8E6, MSBFIRST, SPI_MODE0),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
   _packetIndex(0),
