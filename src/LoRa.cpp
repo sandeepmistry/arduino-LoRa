@@ -407,12 +407,12 @@ void LoRaClass::setSyncWord(int sw)
   writeRegister(REG_SYNC_WORD, sw);
 }
 
-void LoRaClass::crc()
+void LoRaClass::enableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) | 0x04);
 }
 
-void LoRaClass::noCrc()
+void LoRaClass::disableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
 }

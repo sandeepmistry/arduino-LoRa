@@ -48,8 +48,12 @@ public:
   void setCodingRate4(int denominator);
   void setPreambleLength(long length);
   void setSyncWord(int sw);
-  void crc();
-  void noCrc();
+  void enableCrc();
+  void disableCrc();
+
+  // deprecated
+  void crc() { enableCrc(); }
+  void noCrc() { disableCrc(); }
 
   byte random();
 

@@ -297,9 +297,9 @@ LoRa.setSyncWord(syncWord);
 Enable or disable CRC usage, by default a CRC is not used.
 
 ```arduino
-LoRa.crc();
+LoRa.enableCrc();
 
-LoRa.noCrc();
+LoRa.disableCrc();
 ```
 
 ## Other functions
