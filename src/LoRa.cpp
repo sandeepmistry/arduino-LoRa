@@ -406,7 +406,15 @@ void LoRaClass::setPreambleLength(long length)
 
 void LoRaClass::setSyncWord(int sw)
 {
+  // backup current op mode
+  byte oldOpMode = readRegister(REG_OP_MODE);
+
+  sleep();
+
   writeRegister(REG_SYNC_WORD, sw);
+
+  // retore previous op mode
+  writeRegister(REG_OP_MODE, oldOpMode);
 }
 
 void LoRaClass::enableCrc()
