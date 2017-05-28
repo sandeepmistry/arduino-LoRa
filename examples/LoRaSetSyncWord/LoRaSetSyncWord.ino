@@ -4,8 +4,8 @@
   Sends a message every half second, and polls continually
   for new incoming messages. Sets the LoRa radio's Sync Word.
 
-  Spreading factor is basically the radio's network ID. Radios with different 
-  Sync Words will not receive each other's transmissions. This is one way you 
+  Spreading factor is basically the radio's network ID. Radios with different
+  Sync Words will not receive each other's transmissions. This is one way you
   can filter out radios you want to ignore, without making an addressing scheme.
 
   See the Semtech datasheet, http://www.semtech.com/images/datasheet/sx1276.pdf
@@ -25,16 +25,20 @@ int interval = 2000;          // interval between sends
 long lastSendTime = 0;        // time of last packet send
 
 void setup() {
-  while (!Serial);
   Serial.begin(9600);                   // initialize serial
-  Serial.println("LoRa Duplex");
+  while (!Serial);
+  
+  Serial.println("LoRa Duplex - Set sync word");
+
+  // override the default CS, reset, and IRQ pins (optional)
   LoRa.setPins(csPin, resetPin, irqPin);// set CS, reset, IRQ pin
 
-  if (!LoRa.begin(915E6)) {             // initialize ratio at 915Mhz
+  if (!LoRa.begin(915E6)) {             // initialize ratio at 915 MHz
     Serial.println("LoRa init failed. Check your connections.");
     while (true);                       // if failed, do nothing
   }
-  LoRa.setSyncWord(F3);           // ranges from 0-0xFF, default 0x34, see API docs      
+
+  LoRa.setSyncWord(0xF3);           // ranges from 0-0xFF, default 0x34, see API docs
   Serial.println("LoRa init succeeded.");
 }
 
@@ -60,18 +64,19 @@ void sendMessage(String outgoing) {
   msgCount++;                           // increment message ID
 }
 
-
 void onReceive(int packetSize) {
   if (packetSize == 0) return;          // if there's no packet, return
 
   // read packet header bytes:
   String incoming = "";
+ 
   while (LoRa.available()) {
     incoming += (char)LoRa.read();
   }
-  Serial.println("Message:" + incoming);
-  Serial.println("RSSI:" + String(LoRa.packetRssi()));
-  Serial.println("Snr:" + String(LoRa.packetSnr()));
+ 
+  Serial.println("Message: " + incoming);
+  Serial.println("RSSI: " + String(LoRa.packetRssi()));
+  Serial.println("Snr: " + String(LoRa.packetSnr()));
   Serial.println();
 }
 
