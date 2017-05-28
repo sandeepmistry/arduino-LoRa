@@ -1,13 +1,14 @@
 language: generic
 env:
   global:
-    - IDE_VERSION=1.6.12
+    - IDE_VERSION=1.8.2
   matrix:
     - BOARD="arduino:avr:uno"
     - BOARD="arduino:avr:micro"
     - BOARD="arduino:avr:mega:cpu=atmega2560"
     - BOARD="arduino:samd:arduino_zero_edbg"
     - BOARD="arduino:samd:mkr1000"
+    - BOARD="arduino:samd:mkrzero"
 before_install:
   - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16
   - sleep 3
