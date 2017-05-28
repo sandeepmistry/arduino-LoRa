@@ -24,6 +24,11 @@ install:
   - mkdir -p $HOME/Arduino/libraries
   - ln -s $PWD $HOME/Arduino/libraries/LoRa
 script:
+  - buildExampleSketch LoRaDumpRegisters
+  - buildExampleSketch LoRaDuplex
+  - buildExampleSketch LoRaDuplexCallback
   - buildExampleSketch LoRaReceiver
   - buildExampleSketch LoRaReceiverCallback
   - buildExampleSketch LoRaSender
+  - buildExampleSketch LoRaSetSpread
+  - buildExampleSketch LoRaSetSyncWord
