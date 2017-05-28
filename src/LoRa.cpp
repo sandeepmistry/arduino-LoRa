@@ -55,6 +55,8 @@ LoRaClass::LoRaClass() :
   _implicitHeaderMode(0),
   _onReceive(NULL)
 {
+  // overide Stream timeout value
+  setTimeout(0);
 }
 
 int LoRaClass::begin(long frequency)
