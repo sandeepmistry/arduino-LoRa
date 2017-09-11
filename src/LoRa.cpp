@@ -1,3 +1,6 @@
+// Copyright (c) Sandeep Mistry. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 #include <LoRa.h>
 
 // registers
@@ -153,6 +156,9 @@ int LoRaClass::parsePacket(int size)
 {
   int packetLength = 0;
   int irqFlags = readRegister(REG_IRQ_FLAGS);
+
+Serial.print("irqFlags ");
+Serial.println(irqFlags, HEX);
 
   if (size > 0) {
     implicitHeaderMode();
