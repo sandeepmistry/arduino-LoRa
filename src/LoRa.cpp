@@ -280,7 +280,7 @@ void LoRaClass::onReceive(void(*callback)(int))
   if (callback) {
     writeRegister(REG_DIO_MAPPING_1, 0x00);
 
-    attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
+    attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0RiseRx, RISING);
   } else {
     detachInterrupt(digitalPinToInterrupt(_dio0));
   }
@@ -466,7 +466,7 @@ void LoRaClass::implicitHeaderMode()
   writeRegister(REG_MODEM_CONFIG_1, readRegister(REG_MODEM_CONFIG_1) | 0x01);
 }
 
-void LoRaClass::handleDio0Rise()
+void LoRaClass::handleDio0RiseRx()
 {
   int irqFlags = readRegister(REG_IRQ_FLAGS);
 
@@ -518,9 +518,9 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
   return response;
 }
 
-void LoRaClass::onDio0Rise()
+void LoRaClass::onDio0RiseRx()
 {
-  LoRa.handleDio0Rise();
+  LoRa.handleDio0RiseRx();
 }
 
 LoRaClass LoRa;
