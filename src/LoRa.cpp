@@ -39,6 +39,7 @@
 #define MODE_TX                  0x03
 #define MODE_RX_CONTINUOUS       0x05
 #define MODE_RX_SINGLE           0x06
+#define MODE_CAD                 0x07
 
 // PA config
 #define PA_BOOST                 0x80
@@ -307,6 +308,11 @@ void LoRaClass::idle()
 void LoRaClass::sleep()
 {
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
+}
+
+void LoRaClass::cad()
+{
+    writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_CAD);
 }
 
 void LoRaClass::setTxPower(int level, int outputPin)

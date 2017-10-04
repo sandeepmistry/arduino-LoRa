@@ -43,6 +43,7 @@ public:
   void receive(int size = 0);
   void idle();
   void sleep();
+  void cad(); // Channel activity detection
 
   void setTxPower(int level, int outputPin = PA_OUTPUT_PA_BOOST_PIN);
   void setFrequency(long frequency);
