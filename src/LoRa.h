@@ -14,6 +14,27 @@
 #define PA_OUTPUT_RFO_PIN      0
 #define PA_OUTPUT_PA_BOOST_PIN 1
 
+// Interrupt related
+#define LORA_IRQ_DIO0_RXDONE      0x0
+#define LORA_IRQ_DIO0_TXDONE      0x1
+#define LORA_IRQ_DIO0_CADDONE     0x2
+
+#define LORA_IRQ_DIO1_RXTIMEOUT   0x0
+#define LORA_IRQ_DIO1_FHSSCHCH    0x1
+#define LORA_IRQ_DIO1_CADDETECTED 0x2
+
+#define LORA_IRQ_DIO2_FHSSCHCH    0x0
+
+#define LORA_IRQ_DIO3_CADDONE     0x0
+#define LORA_IRQ_DIO3_VALIDHEADER 0x1
+#define LORA_IRQ_DIO3_CRCERROR    0x2
+
+#define LORA_IRQ_DIO4_CADDETECTED 0x0
+#define LORA_IRQ_DIO4_PLLLOCK     0x1
+
+#define LORA_IRQ_DIO5_MODEREADY   0x0
+#define LORA_IRQ_DIO5_CLKOUT      0x1
+
 class LoRaClass : public Stream {
 public:
   LoRaClass();
@@ -54,6 +75,7 @@ public:
   void setSyncWord(int sw);
   void enableCrc();
   void disableCrc();
+  void setInterruptMode(byte pin, byte mode); // pin: [DIO]0..5; mode: see LORA_IRQ_DIO*
 
   // deprecated
   void crc() { enableCrc(); }

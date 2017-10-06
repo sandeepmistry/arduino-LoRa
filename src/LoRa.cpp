@@ -30,6 +30,7 @@
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
 #define REG_DIO_MAPPING_1        0x40
+#define REG_DIO_MAPPING_2        0x41
 #define REG_VERSION              0x42
 
 // modes
@@ -279,7 +280,7 @@ void LoRaClass::onReceive(void(*callback)(int))
   _onReceive = callback;
 
   if (callback) {
-    writeRegister(REG_DIO_MAPPING_1, 0x00);
+    setInterruptMode(0, LORA_IRQ_DIO0_RXDONE);
 
     attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0RiseRx, RISING);
   } else {
@@ -429,6 +430,21 @@ void LoRaClass::enableCrc()
 void LoRaClass::disableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
+}
+
+void LoRaClass::setInterruptMode(byte pin, byte mode)
+{
+  if (pin <= 3) {
+    uint8_t mapping = readRegister(REG_DIO_MAPPING_1);
+    bitWrite(mapping, 6 - (pin * 2), bitRead(mode, 0));
+    bitWrite(mapping, 6 - (pin * 2) + 1, bitRead(mode, 1));
+    writeRegister(REG_DIO_MAPPING_1, mapping);
+  } else if (pin <= 5){
+    uint8_t mapping = readRegister(REG_DIO_MAPPING_2);
+    bitWrite(mapping, 14 - (pin * 2), bitRead(mode, 0));
+    bitWrite(mapping, 14 - (pin * 2) + 1, bitRead(mode, 1));
+    writeRegister(REG_DIO_MAPPING_2, mapping);
+  }
 }
 
 byte LoRaClass::random()
