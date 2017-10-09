@@ -45,11 +45,6 @@
 // PA config
 #define PA_BOOST                 0x80
 
-// IRQ flags
-#define IRQ_TX_DONE_FLAG           0x08
-#define IRQ_PAYLOAD_CRC_ERROR_FLAG 0x20
-#define IRQ_RX_DONE_FLAG           0x40
-
 #define MAX_PKT_LENGTH           255
 
 LoRaClass::LoRaClass() :
@@ -146,10 +141,10 @@ int LoRaClass::endPacket()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
 
   // wait for TX done
-  while((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_FLAG) == 0);
+  while((readRegister(REG_IRQ_FLAGS) & LORA_IRQ_FLAG_TX_DONE) == 0);
 
   // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_FLAG);
+  writeRegister(REG_IRQ_FLAGS, LORA_IRQ_FLAG_TX_DONE);
 
   return 1;
 }
@@ -173,7 +168,7 @@ Serial.println(irqFlags, HEX);
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
 
-  if ((irqFlags & IRQ_RX_DONE_FLAG) && (irqFlags & IRQ_PAYLOAD_CRC_ERROR_FLAG) == 0) {
+  if ((irqFlags & LORA_IRQ_FLAG_RX_DONE) && (irqFlags & LORA_IRQ_FLAG_PAYLOAD_CRC_ERROR) == 0) {
     // received a packet
     _packetIndex = 0;
 
@@ -495,7 +490,7 @@ void LoRaClass::handleDio0RiseRx()
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
 
-  if ((irqFlags & IRQ_PAYLOAD_CRC_ERROR_FLAG) == 0) {
+  if ((irqFlags & LORA_IRQ_FLAG_PAYLOAD_CRC_ERROR) == 0) {
     // received a packet
     _packetIndex = 0;
 

@@ -35,6 +35,10 @@
 #define LORA_IRQ_DIO5_MODEREADY   0x0
 #define LORA_IRQ_DIO5_CLKOUT      0x1
 
+#define LORA_IRQ_FLAG_TX_DONE           0x08
+#define LORA_IRQ_FLAG_PAYLOAD_CRC_ERROR 0x20
+#define LORA_IRQ_FLAG_RX_DONE           0x40
+
 class LoRaClass : public Stream {
 public:
   LoRaClass();
