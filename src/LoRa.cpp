@@ -144,7 +144,7 @@ int LoRaClass::endPacket()
   while((readRegister(REG_IRQ_FLAGS) & LORA_IRQ_FLAG_TX_DONE) == 0);
 
   // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, LORA_IRQ_FLAG_TX_DONE);
+  clearInterrupts(LORA_IRQ_FLAG_TX_DONE);
 
   return 1;
 }
@@ -152,10 +152,7 @@ int LoRaClass::endPacket()
 int LoRaClass::parsePacket(int size)
 {
   int packetLength = 0;
-  int irqFlags = readRegister(REG_IRQ_FLAGS);
-
-Serial.print("irqFlags ");
-Serial.println(irqFlags, HEX);
+  const uint8_t irqFlags = readInterrupts();
 
   if (size > 0) {
     implicitHeaderMode();
@@ -165,8 +162,7 @@ Serial.println(irqFlags, HEX);
     explicitHeaderMode();
   }
 
-  // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, irqFlags);
+  clearInterrupts(irqFlags);
 
   if ((irqFlags & LORA_IRQ_FLAG_RX_DONE) && (irqFlags & LORA_IRQ_FLAG_PAYLOAD_CRC_ERROR) == 0) {
     // received a packet
@@ -442,6 +438,16 @@ void LoRaClass::setInterruptMode(byte pin, byte mode)
   }
 }
 
+uint8_t LoRaClass::readInterrupts()
+{
+  return readRegister(REG_IRQ_FLAGS);
+}
+
+void LoRaClass::clearInterrupts(uint8_t irqFlags)
+{
+    writeRegister(REG_IRQ_FLAGS, irqFlags);
+}
+
 byte LoRaClass::random()
 {
   return readRegister(REG_RSSI_WIDEBAND);
@@ -485,10 +491,8 @@ void LoRaClass::implicitHeaderMode()
 
 void LoRaClass::handleDio0RiseRx()
 {
-  int irqFlags = readRegister(REG_IRQ_FLAGS);
-
-  // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, irqFlags);
+  const uint8_t irqFlags = readInterrupts();
+  clearInterrupts(irqFlags);
 
   if ((irqFlags & LORA_IRQ_FLAG_PAYLOAD_CRC_ERROR) == 0) {
     // received a packet
