@@ -306,6 +306,7 @@ void LoRaClass::sleep()
 
 void LoRaClass::cad()
 {
+    idle();
     writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_CAD);
 }
 
