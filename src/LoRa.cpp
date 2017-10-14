@@ -162,7 +162,9 @@ int LoRaClass::parsePacket(int size)
     explicitHeaderMode();
   }
 
-  clearInterrupts(irqFlags);
+  if (irqFlags) {
+    clearInterrupts(irqFlags);
+  }
 
   if ((irqFlags & LORA_IRQ_FLAG_RX_DONE) && (irqFlags & LORA_IRQ_FLAG_PAYLOAD_CRC_ERROR) == 0) {
     // received a packet
@@ -492,7 +494,10 @@ void LoRaClass::implicitHeaderMode()
 void LoRaClass::handleDio0RiseRx()
 {
   const uint8_t irqFlags = readInterrupts();
-  clearInterrupts(irqFlags);
+
+  if (irqFlags) {
+    clearInterrupts(irqFlags);
+  }
 
   if ((irqFlags & LORA_IRQ_FLAG_PAYLOAD_CRC_ERROR) == 0) {
     // received a packet
