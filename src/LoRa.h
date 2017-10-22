@@ -82,6 +82,7 @@ public:
   void setCodingRate4(int denominator);
   void setPreambleLength(long length);
   void setSyncWord(int sw);
+  void enableLowDataRateOptimize(bool enabled);
   void enableCrc();
   void disableCrc();
 

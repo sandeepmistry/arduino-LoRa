@@ -416,6 +416,12 @@ void LoRaClass::setSyncWord(int sw)
   writeRegister(REG_SYNC_WORD, sw);
 }
 
+void LoRaClass::enableLowDataRateOptimize(bool enabled)
+{
+  uint8_t regValue = readRegister(REG_MODEM_CONFIG_3);
+  writeRegister(REG_MODEM_CONFIG_3, bitWrite(regValue, 3, enabled));
+}
+
 void LoRaClass::enableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) | 0x04);
