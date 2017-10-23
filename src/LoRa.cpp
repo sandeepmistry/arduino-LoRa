@@ -411,7 +411,7 @@ void LoRaClass::setPreambleLength(long length)
   writeRegister(REG_PREAMBLE_LSB, (uint8_t)(length >> 0));
 }
 
-void LoRaClass::setSyncWord(int sw)
+void LoRaClass::setSyncWord(uint8_t sw)
 {
   writeRegister(REG_SYNC_WORD, sw);
 }

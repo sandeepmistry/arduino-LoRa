@@ -81,7 +81,7 @@ public:
   void setSignalBandwidth(long sbw);
   void setCodingRate4(int denominator);
   void setPreambleLength(long length);
-  void setSyncWord(int sw);
+  void setSyncWord(uint8_t sw);
   void enableLowDataRateOptimize(bool enabled);
   void enableCrc();
   void disableCrc();
