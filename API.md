@@ -32,6 +32,14 @@ LoRa.setPins(ss, reset, dio0);
 
 This call is optional and only needs to be used if you need to change the default pins used.
 
+### Saving pins (Experimental)
+
+To save further pins one could connect the Reset pin of the MCU with reset pin of the radio thus resetting only during startup. If the radio is the only slave SPI device it can be activated continuosly by pulling `ss` low.
+
+* `reset` - set to `-1` to omit this pin
+* `ss` - set to `-1` to omit this pin
+
+
 ### Set SPI Frequency
 
 Override the default SPI frequency of 10 MHz used by the library. **Must** be called before `LoRa.begin()`.
