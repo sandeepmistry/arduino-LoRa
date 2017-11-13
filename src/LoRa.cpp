@@ -157,9 +157,6 @@ int LoRaClass::parsePacket(int size)
   int packetLength = 0;
   int irqFlags = readRegister(REG_IRQ_FLAGS);
 
-Serial.print("irqFlags ");
-Serial.println(irqFlags, HEX);
-
   if (size > 0) {
     implicitHeaderMode();
 
