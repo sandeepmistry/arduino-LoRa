@@ -23,6 +23,8 @@ public:
 
   int beginPacket(int implicitHeader = false);
   int endPacket();
+  void endPacketasync();
+  bool isTransmitting();
 
   int parsePacket(int size = 0);
   int packetRssi();
