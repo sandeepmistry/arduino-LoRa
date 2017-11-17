@@ -28,5 +28,6 @@ script:
   - buildExampleSketch LoRaReceiver
   - buildExampleSketch LoRaReceiverCallback
   - buildExampleSketch LoRaSender
+  - buildExampleSketch LoRaSenderNonBlocking
   - buildExampleSketch LoRaSetSpread
   - buildExampleSketch LoRaSetSyncWord
