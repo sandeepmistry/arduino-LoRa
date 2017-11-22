@@ -144,11 +144,8 @@ int LoRaClass::endPacket()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
 
   // wait for TX done
-  while((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0)
-#ifdef ESP8266
-    yield()
-#endif
-    ;
+  while ((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0)
+    yield();
 
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
