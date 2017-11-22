@@ -32,7 +32,7 @@ LoRa.setPins(ss, reset, dio0);
 
 This call is optional and only needs to be used if you need to change the default pins used.
 
-### Saving pin (tested on ESP8266)
+### Saving pin
 
 To save further pins one could connect the Reset pin of the MCU with reset pin of the radio thus resetting only during startup.
 
