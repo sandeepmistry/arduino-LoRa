@@ -21,12 +21,12 @@ void setup()
 
 void loop()
 {
-  if (LoRa.isTransmitting())
+  while (LoRa.beginPacket() == 0)
   {
     delay(100);
     Serial.print('w');
-    return;
   }
+
   Serial.print("\nSending packet: ");
   Serial.println(counter);
 
@@ -34,7 +34,9 @@ void loop()
   LoRa.beginPacket();
   LoRa.print("hello ");
   LoRa.print(counter);
-  LoRa.endPacketasync();
+  
+  // send using async API
+  LoRa.endPacket(true);
 
   counter++;
 }

@@ -22,8 +22,7 @@ public:
   void end();
 
   int beginPacket(int implicitHeader = false);
-  int endPacket();
-  void endPacketasync();
+  int endPacket(bool async = false);
   bool isTransmitting();
 
   int parsePacket(int size = 0);
