@@ -53,6 +53,26 @@ See [API.md](API.md).
 
 See [examples](examples) folder.
 
+## FAQ
+
+**1) Initilizating the LoRa radio is failing**
+
+Please check the wiring you are using matches what's listed in [Semtech SX1276/77/78/79 wiring](#semtech-sx1276777879-wiring). You can also use `LoRa.setPins(ss, reset, dio0)` to change the default pins used. Some logic level converters cannot operate at 8 MHz, you can call `LoRa.setSPIFrequency(frequency)` to lower the SPI frequency used by the library. Both API's must be called before `LoRa.begin(...)`.
+
+**2) Can other radios see the packets I'm sending?**
+
+Yes, any LoRa radio that are configured with the same radio parameters and in range can see the packets you send.
+
+**3) Is the data I'm sending encrypted?**
+
+No, all data is sent unencrypted. If want your packet data to be encrypted, you must encrypt it before passing it into this library, followed by decrypting on the receiving end.
+
+**4) How does this library differ from LoRaWAN libraries?**
+
+This library exposes the LoRa radio directly, and allows you to send data to any radios in range with same radio parameters. All data is broadcasted and there is no addressing. LoRaWAN builds on top of LoRA, but adds addressing, encryption, and additional layers. It also requires a LoRaWAN gateway and LoRaWAN network and application server.
+
+
+
 ## License
 
 This libary is [licensed](LICENSE) under the [MIT Licence](http://en.wikipedia.org/wiki/MIT_License).
