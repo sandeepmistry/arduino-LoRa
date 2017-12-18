@@ -32,12 +32,11 @@ LoRa.setPins(ss, reset, dio0);
 
 This call is optional and only needs to be used if you need to change the default pins used.
 
-### Saving pin
+#### No MCU controlled reset pin
 
-To save further pins one could connect the Reset pin of the MCU with reset pin of the radio thus resetting only during startup.
+To save further pins one could connect the reset pin of the MCU with reset pin of the radio thus resetting only during startup.
 
 * `reset` - set to `-1` to omit this pin
-
 
 ### Set SPI Frequency
 
