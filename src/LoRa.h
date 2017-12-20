@@ -54,6 +54,12 @@ public:
   void enableCrc();
   void disableCrc();
 
+  // High Power +20 dBm Operation (Semtech SX1276/77/78/79 5.4.3.)
+  // Only with PA_BOOST pin connected
+  void set20dBm_sx127x(bool turn_on);
+  // Over Current Protection control (Semtech SX1276/77/78/79 5.4.4.)
+  void setOCP_sx127x(uint8_t mA);
+
   // deprecated
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
