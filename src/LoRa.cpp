@@ -281,9 +281,13 @@ void LoRaClass::onReceive(void(*callback)(int))
   if (callback) {
     writeRegister(REG_DIO_MAPPING_1, 0x00);
 
+    SPI.usingInterrupt(digitalPinToInterrupt(_dio0));
     attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
   } else {
     detachInterrupt(digitalPinToInterrupt(_dio0));
+#ifdef SPI_HAS_NOTUSINGINTERRUPT
+    SPI.notUsingInterrupt(digitalPinToInterrupt(_dio0));
+#endif
   }
 }
 
