@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/sandeepmistry/arduino-LoRa.svg?branch=master)](https://travis-ci.org/sandeepmistry/arduino-LoRa)
 
-An [Arduino](http://arduino.cc/) library for sending and receiving data using [LoRa](https://www.lora-alliance.org/) radios.
+An [Arduino](https://arduino.cc/) library for sending and receiving data using [LoRa](https://www.lora-alliance.org/) radios.
 
 ## Compatible Hardware
 
@@ -73,7 +73,13 @@ No, all data is sent unencrypted. If want your packet data to be encrypted, you 
 
 This library exposes the LoRa radio directly, and allows you to send data to any radios in range with same radio parameters. All data is broadcasted and there is no addressing. LoRaWAN builds on top of LoRA, but adds addressing, encryption, and additional layers. It also requires a LoRaWAN gateway and LoRaWAN network and application server.
 
+**5) Does this library honor duty cycles?**
 
+No, you have to manage it by your self.
+
+**6) Which frequencies can I use?**
+
+You can use [this table](https://www.thethingsnetwork.org/wiki/LoRaWAN/Frequencies/By-Country) to lookup the available frequencies by your country. Please also notice the frequency dependent duty cycles.
 
 ## License
 
