@@ -279,6 +279,8 @@ void LoRaClass::onReceive(void(*callback)(int))
   _onReceive = callback;
 
   if (callback) {
+    pinMode(_dio0, INPUT);
+
     writeRegister(REG_DIO_MAPPING_1, 0x00);
 
     attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
