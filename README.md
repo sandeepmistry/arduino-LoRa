@@ -79,8 +79,10 @@ No, you have to manage it by your self.
 
 **6) Which frequencies can I use?**
 
-You can use [this table](https://www.thethingsnetwork.org/wiki/LoRaWAN/Frequencies/By-Country) to lookup the available frequencies by your country. Please also notice the frequency dependent duty cycles.
+You can use [this table](https://www.thethingsnetwork.org/wiki/LoRaWAN/Frequencies/By-Country) to lookup the available frequencies by your country. The selectable frequency also depends on your hardware. You can lookup the data sheet or ask your supplier.
+
+Please also notice the frequency dependent duty cycles for legal reasons!
 
 ## License
 
-This libary is [licensed](LICENSE) under the [MIT Licence](http://en.wikipedia.org/wiki/MIT_License).
+This libary is [licensed](LICENSE) under the [MIT Licence](https://en.wikipedia.org/wiki/MIT_License).
