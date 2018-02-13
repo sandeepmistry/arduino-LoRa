@@ -50,6 +50,8 @@
 
 #define MAX_PKT_LENGTH           255
 
+static SPIClass& SPIPORT = SPI;
+
 LoRaClass::LoRaClass() :
   _spiSettings(8E6, MSBFIRST, SPI_MODE0),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
@@ -60,6 +62,12 @@ LoRaClass::LoRaClass() :
 {
   // overide Stream timeout value
   setTimeout(0);
+}
+
+int LoRaClass::begin(SPIClass& device, long frequency)
+{
+  SPIPORT = device;
+  return begin(frequency);
 }
 
 int LoRaClass::begin(long frequency)
@@ -80,7 +88,7 @@ int LoRaClass::begin(long frequency)
   }
 
   // start SPI
-  SPI.begin();
+  SPIPORT.begin();
 
   // check version
   uint8_t version = readRegister(REG_VERSION);
@@ -119,7 +127,7 @@ void LoRaClass::end()
   sleep();
 
   // stop SPI
-  SPI.end();
+  SPIPORT.end();
 }
 
 int LoRaClass::beginPacket(int implicitHeader)
@@ -511,10 +519,10 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 
   digitalWrite(_ss, LOW);
 
-  SPI.beginTransaction(_spiSettings);
-  SPI.transfer(address);
-  response = SPI.transfer(value);
-  SPI.endTransaction();
+  SPIPORT.beginTransaction(_spiSettings);
+  SPIPORT.transfer(address);
+  response = SPIPORT.transfer(value);
+  SPIPORT.endTransaction();
 
   digitalWrite(_ss, HIGH);
 

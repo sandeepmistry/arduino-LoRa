@@ -18,6 +18,7 @@ class LoRaClass : public Stream {
 public:
   LoRaClass();
 
+  int begin(SPIClass& device, long frequency);
   int begin(long frequency);
   void end();
 
