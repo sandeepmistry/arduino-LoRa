@@ -7,12 +7,22 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#define LORA_DEFAULT_SS_PIN    10
-#define LORA_DEFAULT_RESET_PIN 9
-#define LORA_DEFAULT_DIO0_PIN  2
+#ifdef ARDUINO_SAMD_MKRWAN1300
+#define LORA_DEFAULT_SPI           SPI1
+#define LORA_DEFAULT_SPI_FREQUENCY 100000
+#define LORA_DEFAULT_SS_PIN        LORA_IRQ_DUMB
+#define LORA_DEFAULT_RESET_PIN     -1
+#define LORA_DEFAULT_DIO0_PIN      -1
+#else
+#define LORA_DEFAULT_SPI           SPI
+#define LORA_DEFAULT_SPI_FREQUENCY 8E6 
+#define LORA_DEFAULT_SS_PIN        10
+#define LORA_DEFAULT_RESET_PIN     9
+#define LORA_DEFAULT_DIO0_PIN      2
+#endif
 
-#define PA_OUTPUT_RFO_PIN      0
-#define PA_OUTPUT_PA_BOOST_PIN 1
+#define PA_OUTPUT_RFO_PIN          0
+#define PA_OUTPUT_PA_BOOST_PIN     1
 
 class LoRaClass : public Stream {
 public:

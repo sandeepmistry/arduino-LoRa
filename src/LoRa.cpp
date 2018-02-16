@@ -51,7 +51,7 @@
 #define MAX_PKT_LENGTH           255
 
 LoRaClass::LoRaClass() :
-  _spiSettings(8E6, MSBFIRST, SPI_MODE0),
+  _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
   _packetIndex(0),
@@ -64,6 +64,23 @@ LoRaClass::LoRaClass() :
 
 int LoRaClass::begin(long frequency)
 {
+#ifdef ARDUINO_SAMD_MKRWAN1300
+  pinMode(LORA_IRQ_DUMB, OUTPUT);
+  digitalWrite(LORA_IRQ_DUMB, LOW);
+
+  // Hardware reset
+  pinMode(LORA_BOOT0, OUTPUT);
+  digitalWrite(LORA_BOOT0, LOW);
+
+  pinMode(LORA_RESET, OUTPUT);
+  digitalWrite(LORA_RESET, HIGH);
+  delay(200);
+  digitalWrite(LORA_RESET, LOW);
+  delay(200);
+  digitalWrite(LORA_RESET, HIGH);
+  delay(50);
+#endif
+
   // setup pins
   pinMode(_ss, OUTPUT);
   // set SS high
@@ -80,7 +97,7 @@ int LoRaClass::begin(long frequency)
   }
 
   // start SPI
-  SPI.begin();
+  LORA_DEFAULT_SPI.begin();
 
   // check version
   uint8_t version = readRegister(REG_VERSION);
@@ -119,7 +136,7 @@ void LoRaClass::end()
   sleep();
 
   // stop SPI
-  SPI.end();
+  LORA_DEFAULT_SPI.end();
 }
 
 int LoRaClass::beginPacket(int implicitHeader)
@@ -511,10 +528,10 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 
   digitalWrite(_ss, LOW);
 
-  SPI.beginTransaction(_spiSettings);
-  SPI.transfer(address);
-  response = SPI.transfer(value);
-  SPI.endTransaction();
+  LORA_DEFAULT_SPI.beginTransaction(_spiSettings);
+  LORA_DEFAULT_SPI.transfer(address);
+  response = LORA_DEFAULT_SPI.transfer(value);
+  LORA_DEFAULT_SPI.endTransaction();
 
   digitalWrite(_ss, HIGH);
 
