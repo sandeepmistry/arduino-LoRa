@@ -52,6 +52,7 @@
 
 LoRaClass::LoRaClass() :
   _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
+  _spi(&LORA_DEFAULT_SPI),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
   _packetIndex(0),
@@ -97,7 +98,7 @@ int LoRaClass::begin(long frequency)
   }
 
   // start SPI
-  LORA_DEFAULT_SPI.begin();
+  _spi->begin();
 
   // check version
   uint8_t version = readRegister(REG_VERSION);
@@ -136,7 +137,7 @@ void LoRaClass::end()
   sleep();
 
   // stop SPI
-  LORA_DEFAULT_SPI.end();
+  _spi->end();
 }
 
 int LoRaClass::beginPacket(int implicitHeader)
@@ -457,6 +458,11 @@ void LoRaClass::setPins(int ss, int reset, int dio0)
   _dio0 = dio0;
 }
 
+void LoRaClass::setSPI(SPIClass& spi)
+{
+  _spi = &spi;
+}
+
 void LoRaClass::setSPIFrequency(uint32_t frequency)
 {
   _spiSettings = SPISettings(frequency, MSBFIRST, SPI_MODE0);
@@ -528,10 +534,10 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 
   digitalWrite(_ss, LOW);
 
-  LORA_DEFAULT_SPI.beginTransaction(_spiSettings);
-  LORA_DEFAULT_SPI.transfer(address);
-  response = LORA_DEFAULT_SPI.transfer(value);
-  LORA_DEFAULT_SPI.endTransaction();
+  _spi->beginTransaction(_spiSettings);
+  _spi->transfer(address);
+  response = _spi->transfer(value);
+  _spi->endTransaction();
 
   digitalWrite(_ss, HIGH);
 
