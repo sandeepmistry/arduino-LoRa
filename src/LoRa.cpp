@@ -17,8 +17,8 @@
 #define REG_FIFO_RX_CURRENT_ADDR 0x10
 #define REG_IRQ_FLAGS            0x12
 #define REG_RX_NB_BYTES          0x13
+#define REG_PKT_SNR_VALUE        0x19
 #define REG_PKT_RSSI_VALUE       0x1a
-#define REG_PKT_SNR_VALUE        0x1b
 #define REG_MODEM_CONFIG_1       0x1d
 #define REG_MODEM_CONFIG_2       0x1e
 #define REG_PREAMBLE_MSB         0x20
@@ -63,16 +63,18 @@ int LoRaClass::begin(long frequency)
 {
   // setup pins
   pinMode(_ss, OUTPUT);
-  pinMode(_reset, OUTPUT);
-
-  // perform reset
-  digitalWrite(_reset, LOW);
-  delay(10);
-  digitalWrite(_reset, HIGH);
-  delay(10);
-
   // set SS high
   digitalWrite(_ss, HIGH);
+
+  if (_reset != -1) {
+    pinMode(_reset, OUTPUT);
+
+    // perform reset
+    digitalWrite(_reset, LOW);
+    delay(10);
+    digitalWrite(_reset, HIGH);
+    delay(10);
+  }
 
   // start SPI
   SPI.begin();
@@ -141,7 +143,9 @@ int LoRaClass::endPacket()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
 
   // wait for TX done
-  while((readRegister(REG_IRQ_FLAGS) & LORA_IRQ_FLAG_TX_DONE) == 0);
+  while((readRegister(REG_IRQ_FLAGS) & LORA_IRQ_FLAG_TX_DONE) == 0) {
+    yield();
+  }
 
   // clear IRQ's
   clearInterrupts(LORA_IRQ_FLAG_TX_DONE);
@@ -273,6 +277,7 @@ void LoRaClass::onReceive(void(*callback)(int))
   _onReceive = callback;
 
   if (callback) {
+    pinMode(_dio0, INPUT);
     setInterruptMode(0, LORA_IRQ_DIO0_RXDONE);
 
     attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0RiseRx, RISING);
