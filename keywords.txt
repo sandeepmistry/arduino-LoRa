@@ -21,6 +21,7 @@ endPacket	KEYWORD2
 parsePacket	KEYWORD2
 packetRssi	KEYWORD2
 packetSnr	KEYWORD2
+packetFrequencyError	KEYWORD2
 
 write	KEYWORD2
 
@@ -48,6 +49,7 @@ random	KEYWORD2
 setPins	KEYWORD2
 setSPIFrequency	KEYWORD2
 dumpRegisters	KEYWORD2
+getSignalBandwidth	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

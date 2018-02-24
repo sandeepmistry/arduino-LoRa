@@ -27,6 +27,7 @@ public:
   int parsePacket(int size = 0);
   int packetRssi();
   float packetSnr();
+  double packetFrequencyError();
 
   // from Print
   virtual size_t write(uint8_t byte);
@@ -64,6 +65,8 @@ public:
   void setSPIFrequency(uint32_t frequency);
 
   void dumpRegisters(Stream& out);
+
+  long getSignalBandwidth();
 
 private:
   void explicitHeaderMode();
