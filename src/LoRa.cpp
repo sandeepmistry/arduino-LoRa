@@ -25,6 +25,10 @@
 #define REG_PREAMBLE_LSB         0x21
 #define REG_PAYLOAD_LENGTH       0x22
 #define REG_MODEM_CONFIG_3       0x26
+#define REG_PPM_CORRECTION       0x27
+#define REG_FEI_MSB              0x28
+#define REG_FEI_MID              0x29
+#define REG_FEI_LSB              0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
 #define REG_DETECTION_THRESHOLD  0x37
@@ -53,7 +57,8 @@
 LoRaClass::LoRaClass() :
   _spiSettings(8E6, MSBFIRST, SPI_MODE0),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
-  _frequency(0),
+  _frequency(434E6),
+  _bandWidth(125E3),
   _packetIndex(0),
   _implicitHeaderMode(0),
   _onReceive(NULL)
@@ -367,24 +372,34 @@ void LoRaClass::setSignalBandwidth(long sbw)
   int bw;
 
   if (sbw <= 7.8E3) {
+    _bandWidth = 7.8E3;
     bw = 0;
   } else if (sbw <= 10.4E3) {
+    _bandWidth = 10.4E3;
     bw = 1;
   } else if (sbw <= 15.6E3) {
+    _bandWidth = 15.6E3;
     bw = 2;
   } else if (sbw <= 20.8E3) {
+    _bandWidth = 20.8E3;
     bw = 3;
   } else if (sbw <= 31.25E3) {
+    _bandWidth = 31.25E3;
     bw = 4;
   } else if (sbw <= 41.7E3) {
+    _bandWidth = 41.7E3;
     bw = 5;
   } else if (sbw <= 62.5E3) {
+    _bandWidth = 62.5E3;
     bw = 6;
   } else if (sbw <= 125E3) {
+    _bandWidth = 125E3;
     bw = 7;
   } else if (sbw <= 250E3) {
+    _bandWidth = 250E3;
     bw = 8;
   } else /*if (sbw <= 250E3)*/ {
+    _bandWidth = 500E3;
     bw = 9;
   }
 
@@ -423,6 +438,29 @@ void LoRaClass::enableCrc()
 void LoRaClass::disableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
+}
+
+float LoRaClass::compensateFrequencyOffset()
+{
+  int32_t freqError = 0;
+  freqError = static_cast<int32_t>(readRegister(REG_FEI_MSB) & B111);
+  freqError <<= 8L;
+  freqError += static_cast<int32_t>(readRegister(REG_FEI_MID));
+  freqError <<= 8L;
+  freqError += static_cast<int32_t>(readRegister(REG_FEI_LSB));
+
+  if (readRegister(REG_FEI_MSB) & B1000) { // Sign bit is on
+     freqError -= 524288; // B1000'0000'0000'0000'0000
+  }
+
+  const float fXtal = 32E6; // FXOSC: crystal oscillator (XTAL) frequency (2.5. Chip Specification, p. 14)
+  const float fError = ((static_cast<float>(freqError) * (1L << 24)) / fXtal) * (_bandWidth / 500000.0f); // p. 37
+  const int8_t ppmOffset = static_cast<int8_t>(0.95f * (fError * 10E6f / _frequency));
+
+  setFrequency(static_cast<long>(_frequency - fError));
+  writeRegister(REG_PPM_CORRECTION, reinterpret_cast<const uint8_t&>(ppmOffset));
+
+  return fError;
 }
 
 byte LoRaClass::random()
