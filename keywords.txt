@@ -49,7 +49,6 @@ random	KEYWORD2
 setPins	KEYWORD2
 setSPIFrequency	KEYWORD2
 dumpRegisters	KEYWORD2
-getSignalBandwidth	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

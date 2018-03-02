@@ -25,7 +25,9 @@
 #define REG_PREAMBLE_LSB         0x21
 #define REG_PAYLOAD_LENGTH       0x22
 #define REG_MODEM_CONFIG_3       0x26
-#define REG_FREQ_ERROR           0x28
+#define REG_FREQ_ERROR_MSB       0x28
+#define REG_FREQ_ERROR_MID       0x29
+#define REG_FREQ_ERROR_LSB       0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
 #define REG_DETECTION_THRESHOLD  0x37
@@ -212,23 +214,23 @@ float LoRaClass::packetSnr()
   return ((int8_t)readRegister(REG_PKT_SNR_VALUE)) * 0.25;
 }
 
-double LoRaClass::packetFrequencyError()
+long LoRaClass::packetFrequencyError()
 {
-  int32_t fe = (int32_t)readRegister(REG_FREQ_ERROR) & 7;
-  fe <<= 8L;
-  fe += (int32_t)readRegister(REG_FREQ_ERROR+1);
-  fe <<= 8L;
-  fe += (int32_t)readRegister(REG_FREQ_ERROR+2);
-  
-  if (readRegister(REG_FREQ_ERROR) & 8) {
-    fe = fe - 524288;
+  int32_t freqError = 0;
+  freqError = static_cast<int32_t>(readRegister(REG_FREQ_ERROR_MSB) & B111);
+  freqError <<= 8L;
+  freqError += static_cast<int32_t>(readRegister(REG_FREQ_ERROR_MID));
+  freqError <<= 8L;
+  freqError += static_cast<int32_t>(readRegister(REG_FREQ_ERROR_LSB));
+
+  if (readRegister(REG_FREQ_ERROR_MSB) & B1000) { // Sign bit is on
+     freqError -= 524288; // B1000'0000'0000'0000'0000
   }
 
-  double freqError = (double)fe;
-  freqError *=  (16777216.0 / 32000000.0);
-  freqError *= (getSignalBandwidth() / 500000.0);
+  const float fXtal = 32E6; // FXOSC: crystal oscillator (XTAL) frequency (2.5. Chip Specification, p. 14)
+  const float fError = ((static_cast<float>(freqError) * (1L << 24)) / fXtal) * (getSignalBandwidth() / 500000.0f); // p. 37
 
-  return freqError;
+  return static_cast<long>(fError);
 }
 
 size_t LoRaClass::write(uint8_t byte)
