@@ -368,6 +368,11 @@ void LoRaClass::setFrequency(long frequency)
   writeRegister(REG_FRF_LSB, (uint8_t)(frf >> 0));
 }
 
+int LoRaClass::getSpreadingFactor()
+{
+  return readRegister(REG_MODEM_CONFIG_2) & 0x0f) >> 4;
+}
+
 void LoRaClass::setSpreadingFactor(int sf)
 {
   if (sf < 6) {
@@ -385,6 +390,7 @@ void LoRaClass::setSpreadingFactor(int sf)
   }
 
   writeRegister(REG_MODEM_CONFIG_2, (readRegister(REG_MODEM_CONFIG_2) & 0x0f) | ((sf << 4) & 0xf0));
+  setLdoFlag();
 }
 
 long LoRaClass::getSignalBandwidth()
@@ -392,15 +398,15 @@ long LoRaClass::getSignalBandwidth()
   byte bw = (readRegister(REG_MODEM_CONFIG_1) >> 4);
   switch (bw) {
     case 0: return 7.8E3;
-    case 1: return 10.4E3; 
-    case 2: return 15.6E3; 
-    case 3: return 20.8E3; 
-    case 4: return 31.25E3; 
-    case 5: return 41.7E3; 
-    case 6: return 62.5E3; 
-    case 7: return 125E3; 
-    case 8: return 250E3; 
-    case 9: return 500E3; 
+    case 1: return 10.4E3;
+    case 2: return 15.6E3;
+    case 3: return 20.8E3;
+    case 4: return 31.25E3;
+    case 5: return 41.7E3;
+    case 6: return 62.5E3;
+    case 7: return 125E3;
+    case 8: return 250E3;
+    case 9: return 500E3;
   }
 }
 
@@ -431,6 +437,27 @@ void LoRaClass::setSignalBandwidth(long sbw)
   }
 
   writeRegister(REG_MODEM_CONFIG_1, (readRegister(REG_MODEM_CONFIG_1) & 0x0f) | (bw << 4));
+  setLdoFlag();
+}
+
+long LoRaClass::getSymbolRate()
+{
+  // Section 4.1.1.5
+  return getSignalBandwidth() / (1L << getSpreadingFactor());
+}
+
+uint8_t LoRaClass::getLdoFlag()
+{
+  return (readRegister(REG_MODEM_CONFIG_3) & B00001000) >> 4;
+}
+
+void LoRaClass::setLdoFlag()
+{
+   // Section 4.1.1.6
+   if (getSymbolRate > 16)
+   {
+     writeRegister(REG_MODEM_CONFIG_3, readRegister(REG_MODEM_CONFIG_3) | B00001000);
+   }
 }
 
 void LoRaClass::setCodingRate4(int denominator)
