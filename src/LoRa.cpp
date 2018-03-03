@@ -370,7 +370,7 @@ void LoRaClass::setFrequency(long frequency)
 
 int LoRaClass::getSpreadingFactor()
 {
-  return readRegister(REG_MODEM_CONFIG_2) & 0x0f) >> 4;
+  return readRegister(REG_MODEM_CONFIG_2) >> 4;
 }
 
 void LoRaClass::setSpreadingFactor(int sf)
@@ -448,16 +448,14 @@ long LoRaClass::getSymbolRate()
 
 uint8_t LoRaClass::getLdoFlag()
 {
-  return (readRegister(REG_MODEM_CONFIG_3) & B00001000) >> 4;
+  return (readRegister(REG_MODEM_CONFIG_3) & B00001000) >> 3;
 }
 
 void LoRaClass::setLdoFlag()
 {
-   // Section 4.1.1.6
-   if (getSymbolRate() > 16)
-   {
-     writeRegister(REG_MODEM_CONFIG_3, readRegister(REG_MODEM_CONFIG_3) | B00001000);
-   }
+  // Section 4.1.1.6
+  uint8_t ldoBit = (getSymbolRate() > 16) << 3;
+  writeRegister(REG_MODEM_CONFIG_3, (readRegister(REG_MODEM_CONFIG_3) ^ ldoBit)); 
 }
 
 void LoRaClass::setCodingRate4(int denominator)
