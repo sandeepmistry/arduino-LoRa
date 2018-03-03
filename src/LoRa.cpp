@@ -454,7 +454,7 @@ uint8_t LoRaClass::getLdoFlag()
 void LoRaClass::setLdoFlag()
 {
    // Section 4.1.1.6
-   if (getSymbolRate > 16)
+   if (getSymbolRate() > 16)
    {
      writeRegister(REG_MODEM_CONFIG_3, readRegister(REG_MODEM_CONFIG_3) | B00001000);
    }
