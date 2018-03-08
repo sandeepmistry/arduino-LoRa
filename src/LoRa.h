@@ -23,7 +23,6 @@ public:
 
   int beginPacket(int implicitHeader = false);
   int endPacket(bool async = false);
-  bool isTransmitting();
 
   int parsePacket(int size = 0);
   int packetRssi();
@@ -71,6 +70,7 @@ private:
   void implicitHeaderMode();
 
   void handleDio0Rise();
+  bool isTransmitting();
 
   uint8_t readRegister(uint8_t address);
   void writeRegister(uint8_t address, uint8_t value);

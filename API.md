@@ -32,6 +32,12 @@ LoRa.setPins(ss, reset, dio0);
 
 This call is optional and only needs to be used if you need to change the default pins used.
 
+#### No MCU controlled reset pin
+
+To save further pins one could connect the reset pin of the MCU with reset pin of the radio thus resetting only during startup.
+
+* `reset` - set to `-1` to omit this pin
+
 ### Set SPI Frequency
 
 Override the default SPI frequency of 10 MHz used by the library. **Must** be called before `LoRa.begin()`.
@@ -65,7 +71,7 @@ LoRa.beginPacket(implicitHeader);
 
  * `implicitHeader` - (optional) `true` enables implicit header mode, `false` enables explicit header mode (default)
 
-Returns `1` on success, `0` on failure.
+Returns `1` if radio is ready to transmit, `0` if busy or on failure. Consider your code responsible for testing first before actually writing to radio.
 
 ### Writing
 
@@ -89,12 +95,13 @@ Returns the number of bytes written.
 
 ### End packet
 
-End the sequence of sending a packet.
+End the sequence of sending a packet. Set `async` to `true` in order to switch to non-blocking mode.
 
 ```arduino
-LoRa.endPacket()
+LoRa.endPacket(bool async)
 ```
-
+ * `async` - (optional) `true` enables non-blocking mode, `false` returns after transmission (default)
+  
 Returns `1` on success, `0` on failure.
 
 ## Receiving data

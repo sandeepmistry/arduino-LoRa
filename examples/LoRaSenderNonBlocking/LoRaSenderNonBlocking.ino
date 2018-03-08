@@ -9,7 +9,7 @@ void setup()
   while (!Serial)
     ;
 
-  Serial.println("LoRa Sender");
+  Serial.println("LoRa Sender non-blocking");
 
   if (!LoRa.begin(915E6))
   {
@@ -27,7 +27,7 @@ void loop()
     Serial.print('w');
   }
 
-  Serial.print("\nSending packet: ");
+  Serial.print("\nSending packet non-blocking: ");
   Serial.println(counter);
 
   // send packet

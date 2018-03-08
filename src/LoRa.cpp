@@ -66,16 +66,18 @@ int LoRaClass::begin(long frequency)
 {
   // setup pins
   pinMode(_ss, OUTPUT);
-  pinMode(_reset, OUTPUT);
-
-  // perform reset
-  digitalWrite(_reset, LOW);
-  delay(10);
-  digitalWrite(_reset, HIGH);
-  delay(10);
-
   // set SS high
   digitalWrite(_ss, HIGH);
+
+  if (_reset != -1) {
+    pinMode(_reset, OUTPUT);
+
+    // perform reset
+    digitalWrite(_reset, LOW);
+    delay(10);
+    digitalWrite(_reset, HIGH);
+    delay(10);
+  }
 
   // start SPI
   SPI.begin();
@@ -122,7 +124,7 @@ void LoRaClass::end()
 
 int LoRaClass::beginPacket(int implicitHeader)
 {
-  if (isTransmitting)
+  if (isTransmitting())
     return 0;
 
   // put in standby mode
@@ -297,6 +299,8 @@ void LoRaClass::onReceive(void(*callback)(int))
   _onReceive = callback;
 
   if (callback) {
+    pinMode(_dio0, INPUT);
+
     writeRegister(REG_DIO_MAPPING_1, 0x00);
 
     attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
