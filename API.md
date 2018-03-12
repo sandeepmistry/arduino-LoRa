@@ -166,6 +166,14 @@ float snr = LoRa.packetSnr();
 
 Returns the estimated SNR of the received packet in dB.
 
+### Packet Frequency Error
+
+```arduino
+long freqErr = LoRa.packetFrequencyError();
+```
+
+Returns the frequency error of the received packet in Hz. The frequency error is the frequency offset between the receiver centre frequency and that of an incoming LoRa signal.
+
 ### Available
 
 ```arduino
