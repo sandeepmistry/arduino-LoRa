@@ -443,10 +443,12 @@ void LoRaClass::setSignalBandwidth(long sbw)
 void LoRaClass::setLdoFlag()
 {
   // Section 4.1.1.5
-  long symbolRate = getSignalBandwidth() / (1L << getSpreadingFactor());
+  long symbolDuration = 1000 / ( getSignalBandwidth() / (1L << getSpreadingFactor()) ) ;
 
   // Section 4.1.1.6
-  writeRegister(REG_MODEM_CONFIG_3, bitWrite(readRegister(REG_MODEM_CONFIG_3), 3, (symbolRate > 16)));
+  uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
+  bitWrite(config3, 3, (symbolDuration > 16));
+  writeRegister(REG_MODEM_CONFIG_3, config3); 
 }
 
 void LoRaClass::setCodingRate4(int denominator)
