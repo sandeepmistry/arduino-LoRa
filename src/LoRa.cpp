@@ -454,8 +454,8 @@ uint8_t LoRaClass::getLdoFlag()
 void LoRaClass::setLdoFlag()
 {
   // Section 4.1.1.6
-  uint8_t ldoBit = (getSymbolRate() > 16) << 3;
-  writeRegister(REG_MODEM_CONFIG_3, (readRegister(REG_MODEM_CONFIG_3) ^ ldoBit)); 
+  uint8_t regValue = readRegister(REG_MODEM_CONFIG_3);
+  writeRegister(REG_MODEM_CONFIG_3, bitWrite(regValue, 3, (getSymbolRate() > 16)));
 }
 
 void LoRaClass::setCodingRate4(int denominator)
