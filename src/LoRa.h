@@ -67,8 +67,6 @@ public:
   void dumpRegisters(Stream& out);
 
   int getSpreadingFactor();
-  long getSymbolRate();
-  uint8_t getLdoFlag();
 
 private:
   void explicitHeaderMode();
