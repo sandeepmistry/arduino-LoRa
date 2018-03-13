@@ -66,15 +66,15 @@ public:
 
   void dumpRegisters(Stream& out);
 
-  int getSpreadingFactor();
-
 private:
   void explicitHeaderMode();
   void implicitHeaderMode();
 
   void handleDio0Rise();
 
+  int getSpreadingFactor();
   long getSignalBandwidth();
+
   void setLdoFlag();
 
   uint8_t readRegister(uint8_t address);
