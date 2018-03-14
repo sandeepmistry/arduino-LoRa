@@ -51,7 +51,11 @@
 #define MAX_PKT_LENGTH           255
 
 LoRaClass::LoRaClass() :
+#ifdef ARDUINO_SAMD_MKRWAN1300
+  _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE1),
+#else
   _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
+#endif
   _spi(&LORA_DEFAULT_SPI),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
