@@ -225,10 +225,10 @@ LoRa.setTxPower(txPower);
 
 LoRa.setTxPower(txPower, outputPin);
 ```
- * `txPower` - TX power in dB, defaults to `17`
- * `outputPin` - (optional) PA output pin, supported values are `PA_OUTPUT_RFO_PIN` and `PA_OUTPUT_PA_BOOST_PIN`, defaults to `PA_OUTPUT_PA_BOOST_PIN`.
+ * `txPower` - TX power in dBm, defaults to `17`
+ * `outputPin` - (optional) Power Amplifier output pin, supported values are `PA_OUTPUT_RFO_PIN` and `PA_OUTPUT_PA_BOOST_PIN`, defaults to `PA_OUTPUT_PA_BOOST_PIN`.
 
-Supported values are between `2` and `17` for `PA_OUTPUT_PA_BOOST_PIN`, `0` and `14` for `PA_OUTPUT_RFO_PIN`.
+Supported values are between `2` and `17` for `PA_OUTPUT_PA_BOOST_PIN`, `-1` and `14` for `PA_OUTPUT_RFO_PIN`.
 
 Most modules have the PA output pin connected to PA BOOST,
 

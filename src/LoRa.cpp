@@ -316,13 +316,13 @@ void LoRaClass::setTxPower(int level, int outputPin)
 {
   if (PA_OUTPUT_RFO_PIN == outputPin) {
     // RFO
-    if (level < 0) {
-      level = 0;
+    if (level < -1) {
+      level = -1;
     } else if (level > 14) {
       level = 14;
     }
 
-    writeRegister(REG_PA_CONFIG, 0x70 | level);
+    writeRegister(REG_PA_CONFIG, 0x70 | (level + 1));
   } else {
     // PA BOOST
     if (level < 2) {
