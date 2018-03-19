@@ -442,13 +442,21 @@ void LoRaClass::setSignalBandwidth(long sbw)
 
 void LoRaClass::setLdoFlag()
 {
-  // Section 4.1.1.5
-  long symbolDuration = 1000 / ( getSignalBandwidth() / (1L << getSpreadingFactor()) ) ;
 
-  // Section 4.1.1.6
+  boolean ldoOn = false;
+  long bw = getSignalBandwidth();
+
+  // LDO should be on when spreading factor is 12 and bandwidth is greater than 125k, or
+  // when spreading factor is 11 or 12 and bandwidth greater than 62.5k.
+
+  if (bw > 62.5E3)   {
+    int sf = getSpreadingFactor();
+    ldoOn = (sf == 12) || (sf == 11 && bw > 125E3)
+  }
+
   uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
-  bitWrite(config3, 3, (symbolDuration > 16));
-  writeRegister(REG_MODEM_CONFIG_3, config3); 
+  bitWrite(config3, 3, ldoOn);
+  writeRegister(REG_MODEM_CONFIG_3, config3);
 }
 
 void LoRaClass::setCodingRate4(int denominator)
