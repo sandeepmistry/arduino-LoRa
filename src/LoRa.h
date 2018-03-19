@@ -27,6 +27,7 @@ public:
   int parsePacket(int size = 0);
   int packetRssi();
   float packetSnr();
+  long packetFrequencyError();
 
   // from Print
   virtual size_t write(uint8_t byte);
@@ -70,6 +71,8 @@ private:
   void implicitHeaderMode();
 
   void handleDio0Rise();
+
+  long getSignalBandwidth();
 
   uint8_t readRegister(uint8_t address);
   void writeRegister(uint8_t address, uint8_t value);

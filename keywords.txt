@@ -21,6 +21,7 @@ endPacket	KEYWORD2
 parsePacket	KEYWORD2
 packetRssi	KEYWORD2
 packetSnr	KEYWORD2
+packetFrequencyError	KEYWORD2
 
 write	KEYWORD2
 

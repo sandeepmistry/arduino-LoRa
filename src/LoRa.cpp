@@ -25,6 +25,9 @@
 #define REG_PREAMBLE_LSB         0x21
 #define REG_PAYLOAD_LENGTH       0x22
 #define REG_MODEM_CONFIG_3       0x26
+#define REG_FREQ_ERROR_MSB       0x28
+#define REG_FREQ_ERROR_MID       0x29
+#define REG_FREQ_ERROR_LSB       0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
 #define REG_DETECTION_THRESHOLD  0x37
@@ -211,6 +214,25 @@ float LoRaClass::packetSnr()
   return ((int8_t)readRegister(REG_PKT_SNR_VALUE)) * 0.25;
 }
 
+long LoRaClass::packetFrequencyError()
+{
+  int32_t freqError = 0;
+  freqError = static_cast<int32_t>(readRegister(REG_FREQ_ERROR_MSB) & B111);
+  freqError <<= 8L;
+  freqError += static_cast<int32_t>(readRegister(REG_FREQ_ERROR_MID));
+  freqError <<= 8L;
+  freqError += static_cast<int32_t>(readRegister(REG_FREQ_ERROR_LSB));
+
+  if (readRegister(REG_FREQ_ERROR_MSB) & B1000) { // Sign bit is on
+     freqError -= 524288; // B1000'0000'0000'0000'0000
+  }
+
+  const float fXtal = 32E6; // FXOSC: crystal oscillator (XTAL) frequency (2.5. Chip Specification, p. 14)
+  const float fError = ((static_cast<float>(freqError) * (1L << 24)) / fXtal) * (getSignalBandwidth() / 500000.0f); // p. 37
+
+  return static_cast<long>(fError);
+}
+
 size_t LoRaClass::write(uint8_t byte)
 {
   return write(&byte, sizeof(byte));
@@ -368,6 +390,23 @@ void LoRaClass::setSpreadingFactor(int sf)
   }
 
   writeRegister(REG_MODEM_CONFIG_2, (readRegister(REG_MODEM_CONFIG_2) & 0x0f) | ((sf << 4) & 0xf0));
+}
+
+long LoRaClass::getSignalBandwidth()
+{
+  byte bw = (readRegister(REG_MODEM_CONFIG_1) >> 4);
+  switch (bw) {
+    case 0: return 7.8E3;
+    case 1: return 10.4E3; 
+    case 2: return 15.6E3; 
+    case 3: return 20.8E3; 
+    case 4: return 31.25E3; 
+    case 5: return 41.7E3; 
+    case 6: return 62.5E3; 
+    case 7: return 125E3; 
+    case 8: return 250E3; 
+    case 9: return 500E3; 
+  }
 }
 
 void LoRaClass::setSignalBandwidth(long sbw)
