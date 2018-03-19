@@ -88,7 +88,7 @@ private:
   int _ss;
   int _reset;
   int _dio0;
-  int _frequency;
+  long _frequency;
   int _packetIndex;
   int _implicitHeaderMode;
   void (*_onReceive)(int);
