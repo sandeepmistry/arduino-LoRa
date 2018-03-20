@@ -455,7 +455,7 @@ void LoRaClass::setLdoFlag()
   long bw = getSignalBandwidth();
   if (bw > 62.5E3)   {
     int sf = getSpreadingFactor();
-    ldoOn = (sf == 11) || (sf == 12 && bw > 125E3)
+    ldoOn = (sf >= 11) || (sf == 12 && bw > 125E3)
   }
 
   uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
