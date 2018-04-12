@@ -52,7 +52,7 @@
 
 LoRaClass::LoRaClass() :
 #ifdef ARDUINO_SAMD_MKRWAN1300
-  _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE1),
+  _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
 #else
   _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
 #endif
@@ -106,6 +106,7 @@ int LoRaClass::begin(long frequency)
 
   // check version
   uint8_t version = readRegister(REG_VERSION);
+ Serial.println(version);
   if (version != 0x12) {
     return 0;
   }
@@ -155,7 +156,7 @@ int LoRaClass::beginPacket(int implicitHeader)
     explicitHeaderMode();
   }
 
-  // reset FIFO address and paload length
+  // reset FIFO address and payload length
   writeRegister(REG_FIFO_ADDR_PTR, 0);
   writeRegister(REG_PAYLOAD_LENGTH, 0);
 
@@ -174,7 +175,7 @@ int LoRaClass::endPacket()
 
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
-
+  writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
   return 1;
 }
 
@@ -192,6 +193,7 @@ int LoRaClass::parsePacket(int size)
   }
 
   // clear IRQ's
+  writeRegister(REG_IRQ_FLAGS, irqFlags);
   writeRegister(REG_IRQ_FLAGS, irqFlags);
 
   if ((irqFlags & IRQ_RX_DONE_MASK) && (irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
@@ -218,6 +220,7 @@ int LoRaClass::parsePacket(int size)
 
     // put in single RX mode
     writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_SINGLE);
+
   }
 
   return packetLength;
@@ -298,6 +301,8 @@ void LoRaClass::flush()
 
 void LoRaClass::onReceive(void(*callback)(int))
 {
+
+	Serial.println("rec");
   _onReceive = callback;
 
   if (callback) {
@@ -313,6 +318,7 @@ void LoRaClass::onReceive(void(*callback)(int))
 
 void LoRaClass::receive(int size)
 {
+
   if (size > 0) {
     implicitHeaderMode();
 
@@ -502,6 +508,7 @@ void LoRaClass::handleDio0Rise()
 
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
+
 
   if ((irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
     // received a packet
