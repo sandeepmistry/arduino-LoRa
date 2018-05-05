@@ -72,7 +72,10 @@ private:
 
   void handleDio0Rise();
 
+  int getSpreadingFactor();
   long getSignalBandwidth();
+
+  void setLdoFlag();
 
   uint8_t readRegister(uint8_t address);
   void writeRegister(uint8_t address, uint8_t value);
