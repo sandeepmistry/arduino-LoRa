@@ -1,6 +1,9 @@
 #include <SPI.h>
 #include <LoRa.h>
 
+volatile bool doRead = false; // Flag set by callback to perform read process in main loop
+volatile int incomingPacketSize;
+
 void setup() {
   Serial.begin(9600);
   while (!Serial);
@@ -20,20 +23,29 @@ void setup() {
 }
 
 void loop() {
-  // do nothing
+  // If ISR set the flag, perform read operations
+  if (doRead) {
+    readMessage();
+    doRead = false; // Set flag back to false so next read will happen only after next ISR event
+  }
 }
 
-void onReceive(int packetSize) {
+void readMessage() {
   // received a packet
   Serial.print("Received packet '");
 
   // read packet
-  for (int i = 0; i < packetSize; i++) {
+  for (int i = 0; i < incomingPacketSize; i++) {
     Serial.print((char)LoRa.read());
   }
 
   // print RSSI of packet
   Serial.print("' with RSSI ");
   Serial.println(LoRa.packetRssi());
+}
+
+void onReceive(int packetSize) {
+  doRead = true;
+  incomingPacketSize = packetSize;
 }
 
