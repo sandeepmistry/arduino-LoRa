@@ -26,11 +26,11 @@ script:
   - buildExampleSketch LoRaDumpRegisters
   - buildExampleSketch LoRaDuplex
   - if [[ "$BOARD" != "arduino:samd:mkrwan1300" ]]; then
-      buildExampleSketch LoRaDuplexCallback
+      buildExampleSketch LoRaDuplexCallback;
     fi
   - buildExampleSketch LoRaReceiver
   - if [[ "$BOARD" != "arduino:samd:mkrwan1300" ]]; then
-      buildExampleSketch LoRaReceiverCallback
+      buildExampleSketch LoRaReceiverCallback;
     fi
   - buildExampleSketch LoRaSender
   - buildExampleSketch LoRaSetSpread
