@@ -15,6 +15,10 @@
 #include <SPI.h>              // include libraries
 #include <LoRa.h>
 
+#ifdef ARDUINO_SAMD_MKRWAN1300
+#error "This example is not compatible with the Arduino MKR WAN 1300 board!"
+#endif
+
 const int csPin = 7;          // LoRa radio chip select
 const int resetPin = 6;       // LoRa radio reset
 const int irqPin = 1;         // change for your board; must be a hardware interrupt pin

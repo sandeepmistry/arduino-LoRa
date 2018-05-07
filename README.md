@@ -10,6 +10,9 @@ An [Arduino](https://arduino.cc/) library for sending and receiving data using [
    * [Dragino Lora Shield](http://www.dragino.com/products/module/item/102-lora-shield.html)
    * [HopeRF](http://www.hoperf.com/rf_transceiver/lora/) [RFM95W](http://www.hoperf.com/rf_transceiver/lora/RFM95W.html), [RFM96W](http://www.hoperf.com/rf_transceiver/lora/RFM96W.html), and [RFM98W](http://www.hoperf.com/rf_transceiver/lora/RFM98W.html)
    * [Modtronix](http://modtronix.com/) [inAir4](http://modtronix.com/inair4.html), [inAir9](http://modtronix.com/inair9.html), and [inAir9B](http://modtronix.com/inair9b.html)
+ * [Arduino MKR WAN 1300](https://store.arduino.cc/usa/mkr-wan-1300)
+   * **NOTE:** Requires firmware v1.1.6 or later on the on-board Murata module
+   * **WARNING**: [LoRa.onReceive(...)](https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#register-callback) and [LoRa.recieve()](https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#receive-mode) is not compatible with this board!
 
 ### Semtech SX1276/77/78/79 wiring
 

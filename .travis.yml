@@ -9,6 +9,7 @@ env:
     - BOARD="arduino:samd:arduino_zero_edbg"
     - BOARD="arduino:samd:mkr1000"
     - BOARD="arduino:samd:mkrzero"
+    - BOARD="arduino:samd:mkrwan1300"
 before_install:
   - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
   - tar xf arduino-$IDE_VERSION-linux64.tar.xz
@@ -24,9 +25,13 @@ install:
 script:
   - buildExampleSketch LoRaDumpRegisters
   - buildExampleSketch LoRaDuplex
-  - buildExampleSketch LoRaDuplexCallback
+  - if [[ "$BOARD" != "arduino:samd:mkrwan1300" ]]; then
+      buildExampleSketch LoRaDuplexCallback;
+    fi
   - buildExampleSketch LoRaReceiver
-  - buildExampleSketch LoRaReceiverCallback
+  - if [[ "$BOARD" != "arduino:samd:mkrwan1300" ]]; then
+      buildExampleSketch LoRaReceiverCallback;
+    fi
   - buildExampleSketch LoRaSender
   - buildExampleSketch LoRaSetSpread
   - buildExampleSketch LoRaSetSyncWord

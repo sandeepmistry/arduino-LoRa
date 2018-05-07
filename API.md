@@ -38,6 +38,17 @@ To save further pins one could connect the reset pin of the MCU with reset pin o
 
 * `reset` - set to `-1` to omit this pin
 
+### Set SPI interface
+
+Override the default SPI interface used by the library. **Must** be called before `LoRa.begin()`.
+
+```arduino
+LoRa.setSPI(spi);
+```
+ * `spi` - new SPI interface to use, defaults to `SPI`
+
+This call is optional and only needs to be used if you need to change the default SPI interface used, in the case your Arduino (or compatible) board has more than one SPI interface present.
+
 ### Set SPI Frequency
 
 Override the default SPI frequency of 10 MHz used by the library. **Must** be called before `LoRa.begin()`.
@@ -121,6 +132,8 @@ int packetSize = LoRa.parsePacket(size);
 Returns the packet size in bytes or `0` if no packet was received.
 
 ### Continuous receive mode
+
+**WARNING**: Not supported on the Arduino MKR WAN 1300 board!
 
 #### Register callback
 

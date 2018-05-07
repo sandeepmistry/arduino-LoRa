@@ -54,7 +54,8 @@
 #define MAX_PKT_LENGTH           255
 
 LoRaClass::LoRaClass() :
-  _spiSettings(8E6, MSBFIRST, SPI_MODE0),
+  _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
+  _spi(&LORA_DEFAULT_SPI),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
   _packetIndex(0),
@@ -67,6 +68,23 @@ LoRaClass::LoRaClass() :
 
 int LoRaClass::begin(long frequency)
 {
+#ifdef ARDUINO_SAMD_MKRWAN1300
+  pinMode(LORA_IRQ_DUMB, OUTPUT);
+  digitalWrite(LORA_IRQ_DUMB, LOW);
+
+  // Hardware reset
+  pinMode(LORA_BOOT0, OUTPUT);
+  digitalWrite(LORA_BOOT0, LOW);
+
+  pinMode(LORA_RESET, OUTPUT);
+  digitalWrite(LORA_RESET, HIGH);
+  delay(200);
+  digitalWrite(LORA_RESET, LOW);
+  delay(200);
+  digitalWrite(LORA_RESET, HIGH);
+  delay(50);
+#endif
+
   // setup pins
   pinMode(_ss, OUTPUT);
   // set SS high
@@ -83,7 +101,7 @@ int LoRaClass::begin(long frequency)
   }
 
   // start SPI
-  SPI.begin();
+  _spi->begin();
 
   // check version
   uint8_t version = readRegister(REG_VERSION);
@@ -122,7 +140,7 @@ void LoRaClass::end()
   sleep();
 
   // stop SPI
-  SPI.end();
+  _spi->end();
 }
 
 int LoRaClass::beginPacket(int implicitHeader)
@@ -296,6 +314,7 @@ void LoRaClass::flush()
 {
 }
 
+#ifndef ARDUINO_SAMD_MKRWAN1300
 void LoRaClass::onReceive(void(*callback)(int))
 {
   _onReceive = callback;
@@ -328,6 +347,7 @@ void LoRaClass::receive(int size)
 
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
 }
+#endif
 
 void LoRaClass::idle()
 {
@@ -504,6 +524,11 @@ void LoRaClass::setPins(int ss, int reset, int dio0)
   _dio0 = dio0;
 }
 
+void LoRaClass::setSPI(SPIClass& spi)
+{
+  _spi = &spi;
+}
+
 void LoRaClass::setSPIFrequency(uint32_t frequency)
 {
   _spiSettings = SPISettings(frequency, MSBFIRST, SPI_MODE0);
@@ -575,10 +600,10 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 
   digitalWrite(_ss, LOW);
 
-  SPI.beginTransaction(_spiSettings);
-  SPI.transfer(address);
-  response = SPI.transfer(value);
-  SPI.endTransaction();
+  _spi->beginTransaction(_spiSettings);
+  _spi->transfer(address);
+  response = _spi->transfer(value);
+  _spi->endTransaction();
 
   digitalWrite(_ss, HIGH);
 
