@@ -1,6 +1,10 @@
 #include <SPI.h>
 #include <LoRa.h>
 
+#ifdef ARDUINO_SAMD_MKRWAN1300
+#error "This example is not compatible with the Arduino MKR WAN 1300 board!"
+#endif
+
 void setup() {
   Serial.begin(9600);
   while (!Serial);
