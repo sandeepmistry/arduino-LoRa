@@ -133,6 +133,8 @@ Returns the packet size in bytes or `0` if no packet was received.
 
 ### Continuous receive mode
 
+**WARNING**: Not supported on the Arduino MKR WAN 1300 board!
+
 #### Register callback
 
 Register a callback function for when a packet is received.

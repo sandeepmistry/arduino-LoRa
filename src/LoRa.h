@@ -48,9 +48,11 @@ public:
   virtual int peek();
   virtual void flush();
 
+#ifndef ARDUINO_SAMD_MKRWAN1300
   void onReceive(void(*callback)(int));
 
   void receive(int size = 0);
+#endif
   void idle();
   void sleep();
 

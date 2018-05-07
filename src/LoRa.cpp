@@ -296,6 +296,7 @@ void LoRaClass::flush()
 {
 }
 
+#ifndef ARDUINO_SAMD_MKRWAN1300
 void LoRaClass::onReceive(void(*callback)(int))
 {
   _onReceive = callback;
@@ -323,6 +324,7 @@ void LoRaClass::receive(int size)
 
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
 }
+#endif
 
 void LoRaClass::idle()
 {
