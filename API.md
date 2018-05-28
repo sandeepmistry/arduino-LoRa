@@ -331,9 +331,19 @@ LoRa.disableCrc();
 
 ## Other functions
 
+### Get RSSI
+
+Gets the RSSI value from the radio. 
+
+```
+byte b = LoRa.getRSSI();
+```
+
+Returns RSSI value as a byte.
+
 ### Random
 
-Generate a random byte, based on the Wideband RSSI measurement.
+Generate a random byte, based on the Wideband RSSI measurement run through a von Neumann Extractor.
 
 ```
 byte b = LoRa.random();
