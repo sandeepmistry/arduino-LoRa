@@ -54,6 +54,8 @@ public:
   void setSyncWord(int sw);
   void enableCrc();
   void disableCrc();
+  // Over Current Protection control (Semtech SX1276/77/78/79 5.4.4.)
+  void setOCP_sx127x(uint8_t mA);
 
   // deprecated
   void crc() { enableCrc(); }
