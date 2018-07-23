@@ -30,6 +30,7 @@
 #define REG_FREQ_ERROR_LSB       0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
+#define REG_INVERTIQ             0x33 // (default 0x27 or 0x40)
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
 #define REG_DIO_MAPPING_1        0x40
@@ -613,6 +614,11 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 void LoRaClass::onDio0Rise()
 {
   LoRa.handleDio0Rise();
+}
+
+void LoRaClass::invertIQ(boolean invert)
+{
+  writeRegister(REG_INVERTIQ, (uint8_t) (invert == false ?  0x27 : 0x40));
 }
 
 LoRaClass LoRa;
