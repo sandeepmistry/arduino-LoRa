@@ -79,6 +79,8 @@ public:
 
   void dumpRegisters(Stream& out);
 
+  void invertIQ(boolean invert);
+  
 private:
   void explicitHeaderMode();
   void implicitHeaderMode();
