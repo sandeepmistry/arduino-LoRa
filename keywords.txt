@@ -50,6 +50,8 @@ setPins	KEYWORD2
 setSPIFrequency	KEYWORD2
 dumpRegisters	KEYWORD2
 
+invertIQ KEYWORD2
+
 #######################################
 # Constants (LITERAL1)
 #######################################
