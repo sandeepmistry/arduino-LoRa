@@ -30,7 +30,7 @@
 #define REG_FREQ_ERROR_LSB       0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
-#define REG_INVERTIQ             0x33 // (default 0x27 or 0x40)
+#define REG_INVERTIQ             0x33 // (default 0x27 or 0x66)
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
 #define REG_DIO_MAPPING_1        0x40
@@ -618,7 +618,12 @@ void LoRaClass::onDio0Rise()
 
 void LoRaClass::invertIQ(boolean invert)
 {
-  writeRegister(REG_INVERTIQ, (uint8_t) (invert == false ?  0x27 : 0x40));
+  // https://github.com/intel-iot-devkit/upm/blob/master/src/sx1276/sx1276.cxx
+  // The datasheet does not mention anything other than an
+  // InvertIQ bit (0x40) in RegInvertIQ register (0x33).  Here,
+  // we seem to have two bits in RegInvertIQ (existing one for
+  // RX), and a 'new' one for TXOff (0x01).
+  writeRegister(REG_INVERTIQ, (uint8_t) (invert == false ?  0x27 : 0x66));
 }
 
 LoRaClass LoRa;
