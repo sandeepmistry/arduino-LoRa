@@ -33,6 +33,7 @@
 #define REG_INVERTIQ             0x33 // (default 0x27 or 0x66)
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
+#define REG_INVERTIQ2            0x3b // does not exist in datasheet // but used in Semtech code. // UNDOCUMENTED
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
 
@@ -622,8 +623,13 @@ void LoRaClass::invertIQ(boolean invert)
   // The datasheet does not mention anything other than an
   // InvertIQ bit (0x40) in RegInvertIQ register (0x33).  Here,
   // we seem to have two bits in RegInvertIQ (existing one for
-  // RX), and a 'new' one for TXOff (0x01).
+  // RX), and a 'new' one for TXOff (0x01).  In addition,
+  // INVERTIQ2 (0x3b) does not exist in the datasheet, it is
+  // marked as reserved. We will assume that the datasheet is
+  // out of date.
+  
   writeRegister(REG_INVERTIQ, (uint8_t) (invert == false ?  0x27 : 0x66));
+  writeRegister(REG_INVERTIQ2, invert == false ? 0x1d : 0x19);
 }
 
 LoRaClass LoRa;
