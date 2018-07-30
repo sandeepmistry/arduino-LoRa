@@ -317,7 +317,7 @@ Change the sync word of the radio.
 LoRa.setSyncWord(syncWord);
 ```
 
- * `syncWord` - byte value to use as the sync word, defaults to `0x34`
+ * `syncWord` - byte value to use as the sync word, defaults to `0x12`
 
 ### CRC
 
