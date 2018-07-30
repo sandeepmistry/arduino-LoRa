@@ -79,7 +79,7 @@ public:
 
   void dumpRegisters(Stream& out);
 
-private:
+protected:
   void explicitHeaderMode();
   void implicitHeaderMode();
 
