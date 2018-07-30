@@ -10,6 +10,7 @@
 #define REG_FRF_MID              0x07
 #define REG_FRF_LSB              0x08
 #define REG_PA_CONFIG            0x09
+#define REG_OCP                  0x0b
 #define REG_LNA                  0x0c
 #define REG_FIFO_ADDR_PTR        0x0d
 #define REG_FIFO_TX_BASE_ADDR    0x0e
@@ -34,6 +35,7 @@
 #define REG_SYNC_WORD            0x39
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
+#define REG_PA_DAC               0x4d
 
 // modes
 #define MODE_LONG_RANGE_MODE     0x80
@@ -510,6 +512,31 @@ void LoRaClass::enableCrc()
 void LoRaClass::disableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
+}
+
+void LoRaClass::set20dBm_sx127x(bool turn_on)
+{
+  if (turn_on) {
+    writeRegister(REG_PA_CONFIG, PA_BOOST | (17 - 2));
+    writeRegister(REG_PA_DAC, 0x87); //Value for High Power
+    setOCP_sx127x(140);
+  }
+  else {
+    writeRegister(REG_PA_DAC, 0x84); //Default value PA_HF/LF or +17dBm
+    setOCP_sx127x(100);
+  }
+}
+
+void LoRaClass::setOCP_sx127x(uint8_t mA)
+{
+  uint8_t ocpTrim = 27;
+  if (mA <= 120) {
+    ocpTrim = (mA - 45)/5;
+  } 
+  else if (mA <=240) {
+    ocpTrim = (mA + 30)/10;
+  }
+  writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));        
 }
 
 byte LoRaClass::random()
