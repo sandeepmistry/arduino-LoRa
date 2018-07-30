@@ -512,9 +512,28 @@ void LoRaClass::disableCrc()
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
 }
 
+byte LoRaClass::getRSSI()
+{
+    return readRegister(REG_RSSI_WIDEBAND);
+}
+
 byte LoRaClass::random()
 {
-  return readRegister(REG_RSSI_WIDEBAND);
+  int n=0, bits=7;
+  while(bits--) {
+    n<<=1;
+    while(1){
+      // implement a basic von Neumann Extractor
+      int a=(readRegister(REG_RSSI_WIDEBAND) & 1);
+      if(a != (readRegister(REG_RSSI_WIDEBAND) & 1)){
+        // put random, whitened bit in n
+        n |= a;
+        break;
+      }
+    }
+  }
+  // return the random byte
+  return n;
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)
