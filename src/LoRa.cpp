@@ -485,7 +485,7 @@ void LoRaClass::disableCrc()
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
 }
 
-void LoRaClass::setOCP_sx127x(uint8_t mA)
+void LoRaClass::setOCP(uint8_t mA)
 {
   uint8_t ocpTrim = 27;
   if (mA <= 120) {
