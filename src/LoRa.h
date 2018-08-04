@@ -79,7 +79,7 @@ public:
   void setSPIFrequency(uint32_t frequency);
 
   void dumpRegisters(Stream& out);
-  
+
 private:
   void explicitHeaderMode();
   void implicitHeaderMode();
