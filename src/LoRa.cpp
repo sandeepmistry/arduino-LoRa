@@ -30,10 +30,10 @@
 #define REG_FREQ_ERROR_LSB       0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
-#define REG_INVERTIQ             0x33 // (default 0x27 or 0x66)
+#define REG_INVERTIQ             0x33
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
-#define REG_INVERTIQ2            0x3b // does not exist in datasheet // but used in Semtech code. // UNDOCUMENTED
+#define REG_INVERTIQ2            0x3b
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
 
@@ -627,8 +627,7 @@ void LoRaClass::invertIQ(boolean invert)
   // INVERTIQ2 (0x3b) does not exist in the datasheet, it is
   // marked as reserved. We will assume that the datasheet is
   // out of date.
-  
-  writeRegister(REG_INVERTIQ, (uint8_t) (invert == false ?  0x27 : 0x66));
+  writeRegister(REG_INVERTIQ,  invert == false ? 0x27 : 0x66);
   writeRegister(REG_INVERTIQ2, invert == false ? 0x1d : 0x19);
 }
 

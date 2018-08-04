@@ -66,7 +66,8 @@ public:
   void setSyncWord(int sw);
   void enableCrc();
   void disableCrc();
-
+  void invertIQ(boolean invert);
+  
   // deprecated
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
@@ -78,8 +79,6 @@ public:
   void setSPIFrequency(uint32_t frequency);
 
   void dumpRegisters(Stream& out);
-
-  void invertIQ(boolean invert);
   
 private:
   void explicitHeaderMode();
