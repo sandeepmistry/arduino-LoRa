@@ -353,7 +353,6 @@ void LoRaClass::setTxPower(int level, int outputPin)
 
     writeRegister(REG_PA_CONFIG, 0x70 | level);
   } else {
-
     // PA BOOST
     if (level > 17) {
       level = 17; 
@@ -361,8 +360,7 @@ void LoRaClass::setTxPower(int level, int outputPin)
       // High Power +20 dBm Operation (Semtech SX1276/77/78/79 5.4.3.)
       writeRegister(REG_PA_DAC, 0x87);
       setOCP(140);
-    }
-    else {
+    } else {
       if (level < 2) {
         level = 2;
       }
@@ -488,12 +486,13 @@ void LoRaClass::disableCrc()
 void LoRaClass::setOCP(uint8_t mA)
 {
   uint8_t ocpTrim = 27;
+
   if (mA <= 120) {
-    ocpTrim = (mA - 45)/5;
-  } 
-  else if (mA <=240) {
-    ocpTrim = (mA + 30)/10;
+    ocpTrim = (mA - 45) / 5;
+  } else if (mA <=240) {
+    ocpTrim = (mA + 30) / 10;
   }
+
   writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));        
 }
 
