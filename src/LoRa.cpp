@@ -390,7 +390,7 @@ void LoRaClass::setTxPower(int level, int outputPin)
         level = 2;
       }
       //Default value PA_HF/LF or +17dBm
-      writeRegister(REG_PA_DAC, 0x84); 
+      writeRegister(REG_PA_DAC, 0x84);
       setOCP(100);
     }
 
@@ -485,10 +485,10 @@ void LoRaClass::setLdoFlag()
 {
   // Section 4.1.1.5
   long symbolDuration = 1000 / ( getSignalBandwidth() / (1L << getSpreadingFactor()) ) ;
-    
+
   // Section 4.1.1.6
   boolean ldoOn = symbolDuration > 16;
-    
+
   uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
   bitWrite(config3, 3, ldoOn);
   writeRegister(REG_MODEM_CONFIG_3, config3);
@@ -538,7 +538,7 @@ void LoRaClass::setOCP(uint8_t mA)
     ocpTrim = (mA + 30) / 10;
   }
 
-  writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));        
+  writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));
 }
 
 byte LoRaClass::random()
