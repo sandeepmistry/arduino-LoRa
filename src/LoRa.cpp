@@ -355,7 +355,12 @@ void LoRaClass::setTxPower(int level, int outputPin)
   } else {
     // PA BOOST
     if (level > 17) {
-      level = 17; 
+      if (level > 20) {
+        level = 20;
+      }
+
+      // subtract 3 from level, so 18 - 20 maps to 15 - 17
+      level -= 3;
 
       // High Power +20 dBm Operation (Semtech SX1276/77/78/79 5.4.3.)
       writeRegister(REG_PA_DAC, 0x87);
