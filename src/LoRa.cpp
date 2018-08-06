@@ -437,6 +437,7 @@ void LoRaClass::setSpreadingFactor(int sf)
 long LoRaClass::getSignalBandwidth()
 {
   byte bw = (readRegister(REG_MODEM_CONFIG_1) >> 4);
+
   switch (bw) {
     case 0: return 7.8E3;
     case 1: return 10.4E3;
@@ -449,6 +450,8 @@ long LoRaClass::getSignalBandwidth()
     case 8: return 250E3;
     case 9: return 500E3;
   }
+
+  return -1;
 }
 
 void LoRaClass::setSignalBandwidth(long sbw)
