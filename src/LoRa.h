@@ -66,11 +66,14 @@ public:
   void setSyncWord(int sw);
   void enableCrc();
   void disableCrc();
-  void invertIQ(boolean invert);
+  void enableInvertIQ();
+  void disableInvertIQ();
   
   // deprecated
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
+  void invertIQ() { enableInvertIQ(); }
+  void noInvertIQ() { disableInvertIQ(); }
 
   byte random();
 

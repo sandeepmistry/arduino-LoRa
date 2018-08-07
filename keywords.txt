@@ -44,13 +44,13 @@ setPreambleLength	KEYWORD2
 setSyncWord	KEYWORD2
 enableCrc	KEYWORD2
 disableCrc	KEYWORD2
+enableInvertIQ  KEYWORD2
+disableInvertIQ KEYWORD2
 
 random	KEYWORD2
 setPins	KEYWORD2
 setSPIFrequency	KEYWORD2
 dumpRegisters	KEYWORD2
-
-invertIQ KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

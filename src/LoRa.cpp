@@ -514,6 +514,18 @@ void LoRaClass::disableCrc()
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
 }
 
+void LoRaClass::enableInvertIQ()
+{
+  writeRegister(REG_INVERTIQ,  0x66);
+  writeRegister(REG_INVERTIQ2, 0x19);
+}
+
+void LoRaClass::disableInvertIQ()
+{
+  writeRegister(REG_INVERTIQ,  0x27);
+  writeRegister(REG_INVERTIQ2, 0x1d);
+}
+
 byte LoRaClass::random()
 {
   return readRegister(REG_RSSI_WIDEBAND);
@@ -615,20 +627,6 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 void LoRaClass::onDio0Rise()
 {
   LoRa.handleDio0Rise();
-}
-
-void LoRaClass::invertIQ(boolean invert)
-{
-  // https://github.com/intel-iot-devkit/upm/blob/master/src/sx1276/sx1276.cxx
-  // The datasheet does not mention anything other than an
-  // InvertIQ bit (0x40) in RegInvertIQ register (0x33).  Here,
-  // we seem to have two bits in RegInvertIQ (existing one for
-  // RX), and a 'new' one for TXOff (0x01).  In addition,
-  // INVERTIQ2 (0x3b) does not exist in the datasheet, it is
-  // marked as reserved. We will assume that the datasheet is
-  // out of date.
-  writeRegister(REG_INVERTIQ,  invert == false ? 0x27 : 0x66);
-  writeRegister(REG_INVERTIQ2, invert == false ? 0x1d : 0x19);
 }
 
 LoRaClass LoRa;

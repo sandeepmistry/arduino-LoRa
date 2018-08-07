@@ -3,11 +3,11 @@
 
   This code uses InvertIQ function to create a simple Gateway/Node logic.
 
-  Gateway - Sends messages with InvertIQ(true)
-          - Receives messeges with InvertIQ(false)
+  Gateway - Sends messages with enableInvertIQ()
+          - Receives messeges with disableInvertIQ()
 
-  Node    - Sends messages with InvertIQ(false)
-          - Receives messeges with InvertIQ(true)
+  Node    - Sends messages with disableInvertIQ()
+          - Receives messeges with enableInvertIQ()
 
   With this arrangement a Gateway never receive messagem from another Gateway 
   and a Node never receive message from another Node.
@@ -48,8 +48,8 @@ void setup() {
   Serial.println();
   Serial.println("LoRa Simple Node");
   Serial.println("Only receive messages from gateways");
-  Serial.println("Tx: invertIQ = false");
-  Serial.println("Rx: invertIQ = true");
+  Serial.println("Tx: invertIQ disable");
+  Serial.println("Rx: invertIQ enable");
   Serial.println();
 
   LoRa.onReceive(onReceive);
@@ -70,13 +70,13 @@ void loop() {
 }
 
 void LoRa_rxMode(){
-  LoRa.invertIQ(true);                  // active invert I and Q signals
+  LoRa.enableInvertIQ();                // active invert I and Q signals
   LoRa.receive();                       // set receive mode
 }
 
 void LoRa_txMode(){
   LoRa.idle();                          // set standby mode
-  LoRa.invertIQ(false);                 // normal mode
+  LoRa.disableInvertIQ();               // normal mode
 }
 
 void LoRa_sendMessage(String message) {
