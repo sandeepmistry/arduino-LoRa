@@ -10,6 +10,7 @@
 #define REG_FRF_MID              0x07
 #define REG_FRF_LSB              0x08
 #define REG_PA_CONFIG            0x09
+#define REG_OCP                  0x0b
 #define REG_LNA                  0x0c
 #define REG_FIFO_ADDR_PTR        0x0d
 #define REG_FIFO_TX_BASE_ADDR    0x0e
@@ -36,6 +37,7 @@
 #define REG_INVERTIQ2            0x3b
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
+#define REG_PA_DAC               0x4d
 
 // modes
 #define MODE_LONG_RANGE_MODE     0x80
@@ -374,10 +376,24 @@ void LoRaClass::setTxPower(int level, int outputPin)
     writeRegister(REG_PA_CONFIG, 0x70 | level);
   } else {
     // PA BOOST
-    if (level < 2) {
-      level = 2;
-    } else if (level > 17) {
-      level = 17;
+    if (level > 17) {
+      if (level > 20) {
+        level = 20;
+      }
+
+      // subtract 3 from level, so 18 - 20 maps to 15 - 17
+      level -= 3;
+
+      // High Power +20 dBm Operation (Semtech SX1276/77/78/79 5.4.3.)
+      writeRegister(REG_PA_DAC, 0x87);
+      setOCP(140);
+    } else {
+      if (level < 2) {
+        level = 2;
+      }
+      //Default value PA_HF/LF or +17dBm
+      writeRegister(REG_PA_DAC, 0x84);
+      setOCP(100);
     }
 
     writeRegister(REG_PA_CONFIG, PA_BOOST | (level - 2));
@@ -423,6 +439,7 @@ void LoRaClass::setSpreadingFactor(int sf)
 long LoRaClass::getSignalBandwidth()
 {
   byte bw = (readRegister(REG_MODEM_CONFIG_1) >> 4);
+
   switch (bw) {
     case 0: return 7.8E3;
     case 1: return 10.4E3;
@@ -435,6 +452,8 @@ long LoRaClass::getSignalBandwidth()
     case 8: return 250E3;
     case 9: return 500E3;
   }
+
+  return -1;
 }
 
 void LoRaClass::setSignalBandwidth(long sbw)
@@ -471,10 +490,10 @@ void LoRaClass::setLdoFlag()
 {
   // Section 4.1.1.5
   long symbolDuration = 1000 / ( getSignalBandwidth() / (1L << getSpreadingFactor()) ) ;
-    
+
   // Section 4.1.1.6
   boolean ldoOn = symbolDuration > 16;
-    
+
   uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
   bitWrite(config3, 3, ldoOn);
   writeRegister(REG_MODEM_CONFIG_3, config3);
@@ -524,6 +543,19 @@ void LoRaClass::disableInvertIQ()
 {
   writeRegister(REG_INVERTIQ,  0x27);
   writeRegister(REG_INVERTIQ2, 0x1d);
+}
+
+void LoRaClass::setOCP(uint8_t mA)
+{
+  uint8_t ocpTrim = 27;
+
+  if (mA <= 120) {
+    ocpTrim = (mA - 45) / 5;
+  } else if (mA <=240) {
+    ocpTrim = (mA + 30) / 10;
+  }
+
+  writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));
 }
 
 byte LoRaClass::random()

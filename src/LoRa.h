@@ -69,6 +69,8 @@ public:
   void enableInvertIQ();
   void disableInvertIQ();
   
+  void setOCP(uint8_t mA); // Over Current Protection control
+
   // deprecated
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
