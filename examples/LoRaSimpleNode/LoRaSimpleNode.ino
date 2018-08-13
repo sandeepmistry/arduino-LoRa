@@ -34,7 +34,7 @@ const int resetPin = 9;        // LoRa radio reset
 const int irqPin = 2;          // change for your board; must be a hardware interrupt pin
 
 void setup() {
-  Serial.begin(115200);                   // initialize serial
+  Serial.begin(9600);                   // initialize serial
   while (!Serial);
 
   LoRa.setPins(csPin, resetPin, irqPin);

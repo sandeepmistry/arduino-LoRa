@@ -74,8 +74,6 @@ public:
   // deprecated
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
-  void invertIQ() { enableInvertIQ(); }
-  void noInvertIQ() { disableInvertIQ(); }
 
   byte random();
 
