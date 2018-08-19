@@ -3,40 +3,33 @@
 
 int counter = 0;
 
-void setup()
-{
+void setup() {
   Serial.begin(9600);
-  while (!Serial)
-    ;
+  while (!Serial);
 
   Serial.println("LoRa Sender non-blocking");
 
-  if (!LoRa.begin(915E6))
-  {
+  if (!LoRa.begin(915E6)) {
     Serial.println("Starting LoRa failed!");
-    while (1)
-      ;
+    while (1);
   }
 }
 
-void loop()
-{
-  while (LoRa.beginPacket() == 0)
-  {
+void loop() {
+  // wait until the radio is ready to send a packet
+  while (LoRa.beginPacket() == 0) {
+    Serial.print("waiting for radio ... ");
     delay(100);
-    Serial.print('w');
   }
 
-  Serial.print("\nSending packet non-blocking: ");
+  Serial.print("Sending packet non-blocking: ");
   Serial.println(counter);
 
-  // send packet
+  // send in async / non-blocking mode
   LoRa.beginPacket();
   LoRa.print("hello ");
   LoRa.print(counter);
-  
-  // send using async API
-  LoRa.endPacket(true);
+  LoRa.endPacket(true); // true = async / non-blocking mode
 
   counter++;
 }
