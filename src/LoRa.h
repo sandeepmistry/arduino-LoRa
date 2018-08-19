@@ -66,6 +66,9 @@ public:
   void setSyncWord(int sw);
   void enableCrc();
   void disableCrc();
+  void enableInvertIQ();
+  void disableInvertIQ();
+  
   void setOCP(uint8_t mA); // Over Current Protection control
 
   // deprecated

@@ -31,8 +31,10 @@
 #define REG_FREQ_ERROR_LSB       0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
+#define REG_INVERTIQ             0x33
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
+#define REG_INVERTIQ2            0x3b
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
 #define REG_PA_DAC               0x4d
@@ -529,6 +531,18 @@ void LoRaClass::enableCrc()
 void LoRaClass::disableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
+}
+
+void LoRaClass::enableInvertIQ()
+{
+  writeRegister(REG_INVERTIQ,  0x66);
+  writeRegister(REG_INVERTIQ2, 0x19);
+}
+
+void LoRaClass::disableInvertIQ()
+{
+  writeRegister(REG_INVERTIQ,  0x27);
+  writeRegister(REG_INVERTIQ2, 0x1d);
 }
 
 void LoRaClass::setOCP(uint8_t mA)

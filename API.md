@@ -329,6 +329,16 @@ LoRa.enableCrc();
 LoRa.disableCrc();
 ```
 
+### Invert IQ Signals
+
+Enable or disable Invert the LoRa I and Q signals, by default a invertIQ is not used.
+
+```arduino
+LoRa.enableInvertIQ();
+
+LoRa.disableInvertIQ();
+```
+
 ## Other functions
 
 ### Random
