@@ -4,16 +4,16 @@
   This code uses InvertIQ function to create a simple Gateway/Node logic.
 
   Gateway - Sends messages with enableInvertIQ()
-          - Receives messeges with disableInvertIQ()
+          - Receives messages with disableInvertIQ()
 
   Node    - Sends messages with disableInvertIQ()
-          - Receives messeges with enableInvertIQ()
+          - Receives messages with enableInvertIQ()
 
-  With this arrangement a Gateway never receive messagem from another Gateway 
+  With this arrangement a Gateway never receive messages from another Gateway
   and a Node never receive message from another Node.
   Only Gateway to Node and vice versa.
 
-  This code receives messagens and sends a message every second.
+  This code receives messages and sends a message every second.
 
   InvertIQ function basically invert the LoRa I and Q signals.
 
@@ -59,7 +59,7 @@ void setup() {
 void loop() {
   if (runEvery(1000)) { // repeat every 1000 millis
 
-    String message = "HeLoRa World! ";   
+    String message = "HeLoRa World! ";
     message += "I'm a Node! ";
     message += millis();
 
@@ -89,7 +89,7 @@ void LoRa_sendMessage(String message) {
 
 void onReceive(int packetSize) {
   String message = "";
-  
+
   while (LoRa.available()) {
     message += (char)LoRa.read();
   }
@@ -99,7 +99,7 @@ void onReceive(int packetSize) {
 
 }
 
-boolean runEvery(unsigned long interval) 
+boolean runEvery(unsigned long interval)
 {
   static unsigned long previousMillis = 0;
   unsigned long currentMillis = millis();
