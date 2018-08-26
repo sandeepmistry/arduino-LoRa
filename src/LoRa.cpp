@@ -149,6 +149,10 @@ void LoRaClass::end()
 
 int LoRaClass::beginPacket(int implicitHeader)
 {
+  if (isTransmitting()) {
+    return 0;
+  }
+
   // put in standby mode
   idle();
 
@@ -165,20 +169,38 @@ int LoRaClass::beginPacket(int implicitHeader)
   return 1;
 }
 
-int LoRaClass::endPacket()
+int LoRaClass::endPacket(bool async)
 {
   // put in TX mode
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
 
-  // wait for TX done
-  while ((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0) {
-    yield();
+  if (async) {
+    // grace time is required for the radio
+    delayMicroseconds(150);
+  } else {
+    // wait for TX done
+    while ((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0) {
+      yield();
+    }
+    // clear IRQ's
+    writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
   }
 
-  // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
-
   return 1;
+}
+
+bool LoRaClass::isTransmitting()
+{
+  if ((readRegister(REG_OP_MODE) & MODE_TX) == MODE_TX) {
+    return true;
+  }
+
+  if (readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) {
+    // clear IRQ's
+    writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
+  }
+
+  return false;
 }
 
 int LoRaClass::parsePacket(int size)

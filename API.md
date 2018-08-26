@@ -82,7 +82,7 @@ LoRa.beginPacket(implicitHeader);
 
  * `implicitHeader` - (optional) `true` enables implicit header mode, `false` enables explicit header mode (default)
 
-Returns `1` on success, `0` on failure.
+Returns `1` if radio is ready to transmit, `0` if busy or on failure.
 
 ### Writing
 
@@ -109,8 +109,11 @@ Returns the number of bytes written.
 End the sequence of sending a packet.
 
 ```arduino
-LoRa.endPacket()
+LoRa.endPacket();
+
+LoRa.endPacket(async);
 ```
+ * `async` - (optional) `true` enables non-blocking mode, `false` waits for transmission to be completed (default)
 
 Returns `1` on success, `0` on failure.
 
