@@ -15,7 +15,7 @@
 #define LORA_DEFAULT_DIO0_PIN      -1
 #else
 #define LORA_DEFAULT_SPI           SPI
-#define LORA_DEFAULT_SPI_FREQUENCY 8E6 
+#define LORA_DEFAULT_SPI_FREQUENCY 8E6
 #define LORA_DEFAULT_SS_PIN        10
 #define LORA_DEFAULT_RESET_PIN     9
 #define LORA_DEFAULT_DIO0_PIN      2
@@ -33,6 +33,7 @@ public:
 
   int beginPacket(int implicitHeader = false);
   int endPacket(bool async = false);
+  bool isTransmitting();
 
   int parsePacket(int size = 0);
   int packetRssi();
@@ -68,7 +69,7 @@ public:
   void disableCrc();
   void enableInvertIQ();
   void disableInvertIQ();
-  
+
   void setOCP(uint8_t mA); // Over Current Protection control
 
   // deprecated
@@ -88,7 +89,6 @@ private:
   void implicitHeaderMode();
 
   void handleDio0Rise();
-  bool isTransmitting();
 
   int getSpreadingFactor();
   long getSignalBandwidth();
