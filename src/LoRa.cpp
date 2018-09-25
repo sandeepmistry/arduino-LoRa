@@ -582,7 +582,18 @@ void LoRaClass::setOCP(uint8_t mA)
 
 byte LoRaClass::random()
 {
-  return readRegister(REG_RSSI_WIDEBAND);
+  uint8_t currMode = readRegister(REG_OP_MODE);
+  uint8_t retVal = 0;
+  
+  while(isTransmitting());
+
+  //We need to be listening to radio-traffic in order to generate random numbers
+  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)){ receive(); delay(1); }
+  retVal = readRegister(REG_RSSI_WIDEBAND);
+  //Put the radio in the same mode as it was
+  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)) writeRegister(REG_OP_MODE, currMode);
+
+  return retVal;
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)
