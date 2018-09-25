@@ -584,11 +584,19 @@ byte LoRaClass::random()
 {
   uint8_t currMode = readRegister(REG_OP_MODE);
   uint8_t retVal = 0;
-  
+
   while(isTransmitting());
 
   //We need to be listening to radio-traffic in order to generate random numbers
-  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)){ this->receive(); delay(1); }
+  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)){
+#ifndef ARDUINO_SAMD_MKRWAN1300
+    receive();
+#else
+    explicitHeaderMode();
+    writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
+#endif
+	delay(1);
+    }
   retVal = readRegister(REG_RSSI_WIDEBAND);
   //Put the radio in the same mode as it was
   if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)) writeRegister(REG_OP_MODE, currMode);
