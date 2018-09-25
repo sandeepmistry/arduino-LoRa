@@ -588,7 +588,7 @@ byte LoRaClass::random()
   while(isTransmitting());
 
   //We need to be listening to radio-traffic in order to generate random numbers
-  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)){ receive(); delay(1); }
+  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)){ this->receive(); delay(1); }
   retVal = readRegister(REG_RSSI_WIDEBAND);
   //Put the radio in the same mode as it was
   if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)) writeRegister(REG_OP_MODE, currMode);
