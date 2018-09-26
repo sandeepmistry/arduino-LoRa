@@ -585,7 +585,7 @@ byte LoRaClass::random()
   uint8_t currMode = readRegister(REG_OP_MODE);
   uint8_t retVal = 0;
 
-  while(isTransmitting());
+  while(isTransmitting()) yield();
 
   //We need to be listening to radio-traffic in order to generate random numbers
   if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)){
