@@ -603,7 +603,12 @@ void LoRaClass::setOCP(uint8_t mA)
 
 byte LoRaClass::random()
 {
-  return readRegister(REG_RSSI_WIDEBAND);
+  static byte result = 0;
+  for(int i = 0; i < 8; i++) {
+    result = (result << 1) | (result >> 7); // Spread randomness around / rotate left 
+    result ^= readRegister(REG_RSSI_WIDEBAND); // XOR preserves randomness
+  }
+  return result;
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)
