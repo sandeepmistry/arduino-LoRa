@@ -53,7 +53,6 @@ void setup() {
   Serial.println();
 
   LoRa.onReceive(onReceive);
-  LoRa.onTxDone(onTxDone);
   LoRa_rxMode();
 }
 
@@ -84,7 +83,8 @@ void LoRa_sendMessage(String message) {
   LoRa_txMode();                        // set tx mode
   LoRa.beginPacket();                   // start packet
   LoRa.print(message);                  // add payload
-  LoRa.endPacket(true);                 // finish packet and send it
+  LoRa.endPacket();                     // finish packet and send it
+  LoRa_rxMode();                        // set rx mode
 }
 
 void onReceive(int packetSize) {
@@ -96,11 +96,7 @@ void onReceive(int packetSize) {
 
   Serial.print("Node Receive: ");
   Serial.println(message);
-}
 
-void onTxDone() {
-  Serial.println("TxDone");
-  LoRa_rxMode();
 }
 
 boolean runEvery(unsigned long interval)
