@@ -231,7 +231,8 @@ size_t LoRaClass::write(const uint8_t *buffer, size_t size)
   }
 
   // update length
-  writeRegister(REG_PAYLOAD_LENGTH, currentLength + size);
+  //writeRegister(REG_PAYLOAD_LENGTH, currentLength + size);
+  writeRegister(REG_PAYLOAD_LENGTH, size);
 
   return size;
 }
