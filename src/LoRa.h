@@ -7,12 +7,22 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#define LORA_DEFAULT_SS_PIN    10
-#define LORA_DEFAULT_RESET_PIN 9
-#define LORA_DEFAULT_DIO0_PIN  2
+#ifdef ARDUINO_SAMD_MKRWAN1300
+#define LORA_DEFAULT_SPI           SPI1
+#define LORA_DEFAULT_SPI_FREQUENCY 250000
+#define LORA_DEFAULT_SS_PIN        LORA_IRQ_DUMB
+#define LORA_DEFAULT_RESET_PIN     -1
+#define LORA_DEFAULT_DIO0_PIN      -1
+#else
+#define LORA_DEFAULT_SPI           SPI
+#define LORA_DEFAULT_SPI_FREQUENCY 8E6 
+#define LORA_DEFAULT_SS_PIN        10
+#define LORA_DEFAULT_RESET_PIN     9
+#define LORA_DEFAULT_DIO0_PIN      2
+#endif
 
-#define PA_OUTPUT_RFO_PIN      0
-#define PA_OUTPUT_PA_BOOST_PIN 1
+#define PA_OUTPUT_RFO_PIN          0
+#define PA_OUTPUT_PA_BOOST_PIN     1
 
 class LoRaClass : public Stream {
 public:
@@ -22,7 +32,7 @@ public:
   void end();
 
   int beginPacket(int implicitHeader = false);
-  int endPacket();
+  int endPacket(bool async = false);
 
   int parsePacket(int size = 0);
   int packetRssi();
@@ -39,9 +49,11 @@ public:
   virtual int peek();
   virtual void flush();
 
+#ifndef ARDUINO_SAMD_MKRWAN1300
   void onReceive(void(*callback)(int));
 
   void receive(int size = 0);
+#endif
   void idle();
   void sleep();
 
@@ -54,6 +66,10 @@ public:
   void setSyncWord(int sw);
   void enableCrc();
   void disableCrc();
+  void enableInvertIQ();
+  void disableInvertIQ();
+  
+  void setOCP(uint8_t mA); // Over Current Protection control
 
   // deprecated
   void crc() { enableCrc(); }
@@ -62,6 +78,7 @@ public:
   byte random();
 
   void setPins(int ss = LORA_DEFAULT_SS_PIN, int reset = LORA_DEFAULT_RESET_PIN, int dio0 = LORA_DEFAULT_DIO0_PIN);
+  void setSPI(SPIClass& spi);
   void setSPIFrequency(uint32_t frequency);
 
   void dumpRegisters(Stream& out);
@@ -71,8 +88,12 @@ private:
   void implicitHeaderMode();
 
   void handleDio0Rise();
+  bool isTransmitting();
 
+  int getSpreadingFactor();
   long getSignalBandwidth();
+
+  void setLdoFlag();
 
   uint8_t readRegister(uint8_t address);
   void writeRegister(uint8_t address, uint8_t value);
@@ -82,6 +103,7 @@ private:
 
 private:
   SPISettings _spiSettings;
+  SPIClass* _spi;
   int _ss;
   int _reset;
   int _dio0;

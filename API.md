@@ -38,6 +38,17 @@ To save further pins one could connect the reset pin of the MCU with reset pin o
 
 * `reset` - set to `-1` to omit this pin
 
+### Set SPI interface
+
+Override the default SPI interface used by the library. **Must** be called before `LoRa.begin()`.
+
+```arduino
+LoRa.setSPI(spi);
+```
+ * `spi` - new SPI interface to use, defaults to `SPI`
+
+This call is optional and only needs to be used if you need to change the default SPI interface used, in the case your Arduino (or compatible) board has more than one SPI interface present.
+
 ### Set SPI Frequency
 
 Override the default SPI frequency of 10 MHz used by the library. **Must** be called before `LoRa.begin()`.
@@ -71,7 +82,7 @@ LoRa.beginPacket(implicitHeader);
 
  * `implicitHeader` - (optional) `true` enables implicit header mode, `false` enables explicit header mode (default)
 
-Returns `1` on success, `0` on failure.
+Returns `1` if radio is ready to transmit, `0` if busy or on failure.
 
 ### Writing
 
@@ -98,8 +109,11 @@ Returns the number of bytes written.
 End the sequence of sending a packet.
 
 ```arduino
-LoRa.endPacket()
+LoRa.endPacket();
+
+LoRa.endPacket(async);
 ```
+ * `async` - (optional) `true` enables non-blocking mode, `false` waits for transmission to be completed (default)
 
 Returns `1` on success, `0` on failure.
 
@@ -121,6 +135,8 @@ int packetSize = LoRa.parsePacket(size);
 Returns the packet size in bytes or `0` if no packet was received.
 
 ### Continuous receive mode
+
+**WARNING**: Not supported on the Arduino MKR WAN 1300 board!
 
 #### Register callback
 
@@ -236,7 +252,7 @@ LoRa.setTxPower(txPower, outputPin);
  * `txPower` - TX power in dB, defaults to `17`
  * `outputPin` - (optional) PA output pin, supported values are `PA_OUTPUT_RFO_PIN` and `PA_OUTPUT_PA_BOOST_PIN`, defaults to `PA_OUTPUT_PA_BOOST_PIN`.
 
-Supported values are between `2` and `17` for `PA_OUTPUT_PA_BOOST_PIN`, `0` and `14` for `PA_OUTPUT_RFO_PIN`.
+Supported values are `2` to `20` for `PA_OUTPUT_PA_BOOST_PIN`, and `0` to `14` for `PA_OUTPUT_RFO_PIN`.
 
 Most modules have the PA output pin connected to PA BOOST,
 
@@ -304,7 +320,7 @@ Change the sync word of the radio.
 LoRa.setSyncWord(syncWord);
 ```
 
- * `syncWord` - byte value to use as the sync word, defaults to `0x34`
+ * `syncWord` - byte value to use as the sync word, defaults to `0x12`
 
 ### CRC
 
@@ -314,6 +330,16 @@ Enable or disable CRC usage, by default a CRC is not used.
 LoRa.enableCrc();
 
 LoRa.disableCrc();
+```
+
+### Invert IQ Signals
+
+Enable or disable Invert the LoRa I and Q signals, by default a invertIQ is not used.
+
+```arduino
+LoRa.enableInvertIQ();
+
+LoRa.disableInvertIQ();
 ```
 
 ## Other functions

@@ -10,6 +10,7 @@
 #define REG_FRF_MID              0x07
 #define REG_FRF_LSB              0x08
 #define REG_PA_CONFIG            0x09
+#define REG_OCP                  0x0b
 #define REG_LNA                  0x0c
 #define REG_FIFO_ADDR_PTR        0x0d
 #define REG_FIFO_TX_BASE_ADDR    0x0e
@@ -30,10 +31,13 @@
 #define REG_FREQ_ERROR_LSB       0x2a
 #define REG_RSSI_WIDEBAND        0x2c
 #define REG_DETECTION_OPTIMIZE   0x31
+#define REG_INVERTIQ             0x33
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
+#define REG_INVERTIQ2            0x3b
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
+#define REG_PA_DAC               0x4d
 
 // modes
 #define MODE_LONG_RANGE_MODE     0x80
@@ -54,7 +58,8 @@
 #define MAX_PKT_LENGTH           255
 
 LoRaClass::LoRaClass() :
-  _spiSettings(8E6, MSBFIRST, SPI_MODE0),
+  _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
+  _spi(&LORA_DEFAULT_SPI),
   _ss(LORA_DEFAULT_SS_PIN), _reset(LORA_DEFAULT_RESET_PIN), _dio0(LORA_DEFAULT_DIO0_PIN),
   _frequency(0),
   _packetIndex(0),
@@ -67,6 +72,23 @@ LoRaClass::LoRaClass() :
 
 int LoRaClass::begin(long frequency)
 {
+#ifdef ARDUINO_SAMD_MKRWAN1300
+  pinMode(LORA_IRQ_DUMB, OUTPUT);
+  digitalWrite(LORA_IRQ_DUMB, LOW);
+
+  // Hardware reset
+  pinMode(LORA_BOOT0, OUTPUT);
+  digitalWrite(LORA_BOOT0, LOW);
+
+  pinMode(LORA_RESET, OUTPUT);
+  digitalWrite(LORA_RESET, HIGH);
+  delay(200);
+  digitalWrite(LORA_RESET, LOW);
+  delay(200);
+  digitalWrite(LORA_RESET, HIGH);
+  delay(50);
+#endif
+
   // setup pins
   pinMode(_ss, OUTPUT);
   // set SS high
@@ -83,7 +105,7 @@ int LoRaClass::begin(long frequency)
   }
 
   // start SPI
-  SPI.begin();
+  _spi->begin();
 
   // check version
   uint8_t version = readRegister(REG_VERSION);
@@ -122,11 +144,15 @@ void LoRaClass::end()
   sleep();
 
   // stop SPI
-  SPI.end();
+  _spi->end();
 }
 
 int LoRaClass::beginPacket(int implicitHeader)
 {
+  if (isTransmitting()) {
+    return 0;
+  }
+
   // put in standby mode
   idle();
 
@@ -143,20 +169,38 @@ int LoRaClass::beginPacket(int implicitHeader)
   return 1;
 }
 
-int LoRaClass::endPacket()
+int LoRaClass::endPacket(bool async)
 {
   // put in TX mode
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
 
-  // wait for TX done
-  while ((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0) {
-    yield();
+  if (async) {
+    // grace time is required for the radio
+    delayMicroseconds(150);
+  } else {
+    // wait for TX done
+    while ((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0) {
+      yield();
+    }
+    // clear IRQ's
+    writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
   }
 
-  // clear IRQ's
-  writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
-
   return 1;
+}
+
+bool LoRaClass::isTransmitting()
+{
+  if ((readRegister(REG_OP_MODE) & MODE_TX) == MODE_TX) {
+    return true;
+  }
+
+  if (readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) {
+    // clear IRQ's
+    writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
+  }
+
+  return false;
 }
 
 int LoRaClass::parsePacket(int size)
@@ -296,6 +340,7 @@ void LoRaClass::flush()
 {
 }
 
+#ifndef ARDUINO_SAMD_MKRWAN1300
 void LoRaClass::onReceive(void(*callback)(int))
 {
   _onReceive = callback;
@@ -328,6 +373,7 @@ void LoRaClass::receive(int size)
 
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
 }
+#endif
 
 void LoRaClass::idle()
 {
@@ -352,10 +398,24 @@ void LoRaClass::setTxPower(int level, int outputPin)
     writeRegister(REG_PA_CONFIG, 0x70 | level);
   } else {
     // PA BOOST
-    if (level < 2) {
-      level = 2;
-    } else if (level > 17) {
-      level = 17;
+    if (level > 17) {
+      if (level > 20) {
+        level = 20;
+      }
+
+      // subtract 3 from level, so 18 - 20 maps to 15 - 17
+      level -= 3;
+
+      // High Power +20 dBm Operation (Semtech SX1276/77/78/79 5.4.3.)
+      writeRegister(REG_PA_DAC, 0x87);
+      setOCP(140);
+    } else {
+      if (level < 2) {
+        level = 2;
+      }
+      //Default value PA_HF/LF or +17dBm
+      writeRegister(REG_PA_DAC, 0x84);
+      setOCP(100);
     }
 
     writeRegister(REG_PA_CONFIG, PA_BOOST | (level - 2));
@@ -371,6 +431,11 @@ void LoRaClass::setFrequency(long frequency)
   writeRegister(REG_FRF_MSB, (uint8_t)(frf >> 16));
   writeRegister(REG_FRF_MID, (uint8_t)(frf >> 8));
   writeRegister(REG_FRF_LSB, (uint8_t)(frf >> 0));
+}
+
+int LoRaClass::getSpreadingFactor()
+{
+  return readRegister(REG_MODEM_CONFIG_2) >> 4;
 }
 
 void LoRaClass::setSpreadingFactor(int sf)
@@ -390,23 +455,27 @@ void LoRaClass::setSpreadingFactor(int sf)
   }
 
   writeRegister(REG_MODEM_CONFIG_2, (readRegister(REG_MODEM_CONFIG_2) & 0x0f) | ((sf << 4) & 0xf0));
+  setLdoFlag();
 }
 
 long LoRaClass::getSignalBandwidth()
 {
   byte bw = (readRegister(REG_MODEM_CONFIG_1) >> 4);
+
   switch (bw) {
     case 0: return 7.8E3;
-    case 1: return 10.4E3; 
-    case 2: return 15.6E3; 
-    case 3: return 20.8E3; 
-    case 4: return 31.25E3; 
-    case 5: return 41.7E3; 
-    case 6: return 62.5E3; 
-    case 7: return 125E3; 
-    case 8: return 250E3; 
-    case 9: return 500E3; 
+    case 1: return 10.4E3;
+    case 2: return 15.6E3;
+    case 3: return 20.8E3;
+    case 4: return 31.25E3;
+    case 5: return 41.7E3;
+    case 6: return 62.5E3;
+    case 7: return 125E3;
+    case 8: return 250E3;
+    case 9: return 500E3;
   }
+
+  return -1;
 }
 
 void LoRaClass::setSignalBandwidth(long sbw)
@@ -436,6 +505,20 @@ void LoRaClass::setSignalBandwidth(long sbw)
   }
 
   writeRegister(REG_MODEM_CONFIG_1, (readRegister(REG_MODEM_CONFIG_1) & 0x0f) | (bw << 4));
+  setLdoFlag();
+}
+
+void LoRaClass::setLdoFlag()
+{
+  // Section 4.1.1.5
+  long symbolDuration = 1000 / ( getSignalBandwidth() / (1L << getSpreadingFactor()) ) ;
+
+  // Section 4.1.1.6
+  boolean ldoOn = symbolDuration > 16;
+
+  uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
+  bitWrite(config3, 3, ldoOn);
+  writeRegister(REG_MODEM_CONFIG_3, config3);
 }
 
 void LoRaClass::setCodingRate4(int denominator)
@@ -472,6 +555,31 @@ void LoRaClass::disableCrc()
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
 }
 
+void LoRaClass::enableInvertIQ()
+{
+  writeRegister(REG_INVERTIQ,  0x66);
+  writeRegister(REG_INVERTIQ2, 0x19);
+}
+
+void LoRaClass::disableInvertIQ()
+{
+  writeRegister(REG_INVERTIQ,  0x27);
+  writeRegister(REG_INVERTIQ2, 0x1d);
+}
+
+void LoRaClass::setOCP(uint8_t mA)
+{
+  uint8_t ocpTrim = 27;
+
+  if (mA <= 120) {
+    ocpTrim = (mA - 45) / 5;
+  } else if (mA <=240) {
+    ocpTrim = (mA + 30) / 10;
+  }
+
+  writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));
+}
+
 byte LoRaClass::random()
 {
   return readRegister(REG_RSSI_WIDEBAND);
@@ -482,6 +590,11 @@ void LoRaClass::setPins(int ss, int reset, int dio0)
   _ss = ss;
   _reset = reset;
   _dio0 = dio0;
+}
+
+void LoRaClass::setSPI(SPIClass& spi)
+{
+  _spi = &spi;
 }
 
 void LoRaClass::setSPIFrequency(uint32_t frequency)
@@ -555,10 +668,10 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 
   digitalWrite(_ss, LOW);
 
-  SPI.beginTransaction(_spiSettings);
-  SPI.transfer(address);
-  response = SPI.transfer(value);
-  SPI.endTransaction();
+  _spi->beginTransaction(_spiSettings);
+  _spi->transfer(address);
+  response = _spi->transfer(value);
+  _spi->endTransaction();
 
   digitalWrite(_ss, HIGH);
 
