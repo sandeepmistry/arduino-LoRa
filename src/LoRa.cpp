@@ -57,6 +57,12 @@
 
 #define MAX_PKT_LENGTH           255
 
+#ifdef ESP8266 || ESP32
+    #define ISR_PREFIX ICACHE_RAM_ATTR
+#else
+    #define ISR_PREFIX
+#endif
+
 LoRaClass::LoRaClass() :
   _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
   _spi(&LORA_DEFAULT_SPI),
@@ -678,7 +684,7 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
   return response;
 }
 
-void LoRaClass::onDio0Rise()
+ISR_PREFIX void LoRaClass::onDio0Rise()
 {
   LoRa.handleDio0Rise();
 }
