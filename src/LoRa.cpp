@@ -652,9 +652,6 @@ void LoRaClass::handleDio0Rise()
     if (_onReceive) {
       _onReceive(packetLength);
     }
-
-    // reset FIFO address
-    writeRegister(REG_FIFO_ADDR_PTR, 0);
   }
 }
 
