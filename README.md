@@ -13,6 +13,7 @@ An [Arduino](https://arduino.cc/) library for sending and receiving data using [
  * [Arduino MKR WAN 1300](https://store.arduino.cc/usa/mkr-wan-1300)
    * **NOTE:** Requires firmware v1.1.6 or later on the on-board Murata module. Please use the [MKRWANFWUpdate_standalone example](https://github.com/arduino-libraries/MKRWAN/blob/master/examples/MKRWANFWUpdate_standalone/MKRWANFWUpdate_standalone.ino) from latest [MKRWAN library](https://github.com/arduino-libraries/MKRWAN) release to update the firmware.
    * **WARNING**: [LoRa.onReceive(...)](https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#register-callback) and [LoRa.recieve()](https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#receive-mode) is not compatible with this board!
+* [Arduino LoRa Shield](https://circuitdigest.com/microcontroller-projects/lora-based-gps-tracker-using-arduino-and-lora-shield)
 
 ### Semtech SX1276/77/78/79 wiring
 
@@ -85,6 +86,9 @@ No, you have to manage it by your self.
 You can use [this table](https://www.thethingsnetwork.org/wiki/LoRaWAN/Frequencies/By-Country) to lookup the available frequencies by your country. The selectable frequency also depends on your hardware. You can lookup the data sheet or ask your supplier.
 
 Please also notice the frequency dependent duty cycles for legal reasons!
+
+Example:
+Interfacing Arduino with LoRa module - Peer to Peer communication
 
 ## License
 
