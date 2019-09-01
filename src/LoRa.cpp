@@ -57,7 +57,7 @@
 
 #define MAX_PKT_LENGTH           255
 
-#ifdef ESP8266 || ESP32
+#if (ESP8266 || ESP32)
     #define ISR_PREFIX ICACHE_RAM_ATTR
 #else
     #define ISR_PREFIX
