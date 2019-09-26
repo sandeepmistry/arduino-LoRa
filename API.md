@@ -188,7 +188,7 @@ Returns the estimated SNR of the received packet in dB.
 int rssi = LoRa.rssi();
 ```
 
-Returns the current RSSI of the radio (dBm).
+Returns the current RSSI of the radio (dBm). RSSI can be read at any time (during packet reception or not)
 
 ### Packet Frequency Error
 
