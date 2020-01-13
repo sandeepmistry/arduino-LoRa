@@ -117,6 +117,24 @@ LoRa.endPacket(async);
 
 Returns `1` on success, `0` on failure.
 
+### Tx Done
+
+**WARNING**: Not supported on the Arduino MKR WAN 1300 board! 
+
+### Register callback
+
+Register a callback function for when a packet transmission finish.
+
+```arduino
+LoRa.onTxDone(onTxDone);
+
+void onTxDone() {
+ // ...
+}
+```
+
+ * `onTxDone` - function to call when a packet transmission finish.
+
 ## Receiving data
 
 ### Parsing packet
