@@ -38,6 +38,10 @@ To save further pins one could connect the reset pin of the MCU with reset pin o
 
 * `reset` - set to `-1` to omit this pin
 
+#### Pin dio0 interrupt callbacks
+
+The dio0 pin can be used for transmission finish callback and/or receiving callback, check `onTxDone` and `onReceive`.
+
 ### Set SPI interface
 
 Override the default SPI interface used by the library. **Must** be called before `LoRa.begin()`.
@@ -119,7 +123,7 @@ Returns `1` on success, `0` on failure.
 
 ### Tx Done
 
-**WARNING**: Not supported on the Arduino MKR WAN 1300 board! 
+**WARNING**: TxDone callback uses the interrupt pin on the `dio0` check `setPins` function!
 
 ### Register callback
 
@@ -154,7 +158,7 @@ Returns the packet size in bytes or `0` if no packet was received.
 
 ### Continuous receive mode
 
-**WARNING**: Not supported on the Arduino MKR WAN 1300 board!
+**WARNING**: Receive callback uses the interrupt pin on the `dio0`, check `setPins` function!
 
 #### Register callback
 
