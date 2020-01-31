@@ -58,6 +58,7 @@ public:
 #ifndef ARDUINO_SAMD_MKRWAN1300
   void onReceive(void(*callback)(int));
   void onTxDone(void(*callback)());
+  void onError(void(*callback)());
 
   void receive(int size = 0);
 #endif
@@ -119,6 +120,7 @@ private:
   int _implicitHeaderMode;
   void (*_onReceive)(int);
   void (*_onTxDone)();
+  void (*_onError)();
 };
 
 extern LoRaClass LoRa;
