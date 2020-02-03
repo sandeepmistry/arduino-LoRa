@@ -583,7 +583,7 @@ void LoRaClass::disableCrc()
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
 }
 
-uint8_t LoRaClass::CrcOnPayload()
+uint8_t LoRaClass::crcOnPayload()
 {
 	return (readRegister(REG_HOP_CHANNEL) >> 6) & 1;
 }
