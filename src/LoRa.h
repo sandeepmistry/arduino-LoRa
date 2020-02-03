@@ -73,6 +73,7 @@ public:
   void setSyncWord(int sw);
   void enableCrc();
   void disableCrc();
+  uint8_t CrcOnPayload();
   void enableInvertIQ();
   void disableInvertIQ();
   
