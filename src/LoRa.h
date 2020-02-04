@@ -57,9 +57,11 @@ public:
 
 #ifndef ARDUINO_SAMD_MKRWAN1300
   void onReceive(void(*callback)(int));
+  void onCadDone(void(*callback)(boolean));
   void onTxDone(void(*callback)());
 
   void receive(int size = 0);
+  void CAD(void);
 #endif
   void idle();
   void sleep();
@@ -118,6 +120,7 @@ private:
   int _packetIndex;
   int _implicitHeaderMode;
   void (*_onReceive)(int);
+  void (*_onCadDone)(boolean);
   void (*_onTxDone)();
 };
 
