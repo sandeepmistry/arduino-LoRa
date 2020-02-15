@@ -261,7 +261,7 @@ void onCadDone(boolean signalDetected) {
 ### Channel Activity detection mode
 Puts the radio in channel activity detection mode.
 ```arduino
-LoRa.CAD();
+LoRa.channelActivityDetection();
 ```
 ## Other radio modes
 

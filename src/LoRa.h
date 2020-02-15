@@ -61,7 +61,7 @@ public:
   void onTxDone(void(*callback)());
 
   void receive(int size = 0);
-  void CAD(void);
+  void channelActivityDetection(void);
 #endif
   void idle();
   void sleep();

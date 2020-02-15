@@ -21,7 +21,7 @@ void setup() {
   // register the receive callback
   LoRa.onReceive(onReceive);
   // put the radio into CAD mode
-  LoRa.CAD();
+  LoRa.channelActivityDetection();
 }
 
 void loop() {
@@ -36,7 +36,7 @@ void onCadDone(boolean signalDetected) {
     LoRa.receive();
   } else {
     // try next activity dectection
-    LoRa.CAD();
+    LoRa.channelActivityDetection();
   }
 }
 
@@ -54,5 +54,5 @@ void onReceive(int packetSize) {
   Serial.println(LoRa.packetRssi());
 
   // put the radio into CAD mode
-  LoRa.CAD();
+  LoRa.channelActivityDetection();
 }

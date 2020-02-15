@@ -423,7 +423,7 @@ void LoRaClass::receive(int size)
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
 }
 
-void LoRaClass::CAD(void)
+void LoRaClass::channelActivityDetection(void)
 {
   writeRegister(REG_DIO_MAPPING_1, 0x80);// DIO0 => CADDONE
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_CAD);
