@@ -72,7 +72,7 @@ LoRaClass::LoRaClass() :
   _implicitHeaderMode(0),
   _onReceive(NULL),
   _onTxDone(NULL),
-  _onError(NULL)
+  _onCrcError(NULL)
 {
   // overide Stream timeout value
   setTimeout(0);
