@@ -386,8 +386,8 @@ void LoRaClass::onTxDone(void(*callback)())
   }
 }
 
-void LoRaClass::onError(void(*callback)()){
-	_onError = callback;
+void LoRaClass::onCrcError(void(*callback)()){
+	_onCrcError = callback;
 	
   if (callback) {
     pinMode(_dio0, INPUT);
@@ -703,8 +703,8 @@ void LoRaClass::handleDio0Rise()
       }
     }
   } else {
-	  if (_onError) {
-		_onError();
+	  if (_onCrcError) {
+		_onCrcError();
 	  }	
   }
 }
