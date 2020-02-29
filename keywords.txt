@@ -32,6 +32,8 @@ flush	KEYWORD2
 
 onReceive	KEYWORD2
 onTxDone	KEYWORD2
+onCrcError KEYWORD2
+
 receive	KEYWORD2
 idle	KEYWORD2
 sleep	KEYWORD2
