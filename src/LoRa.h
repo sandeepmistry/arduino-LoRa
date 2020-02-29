@@ -120,7 +120,7 @@ private:
   int _implicitHeaderMode;
   void (*_onReceive)(int);
   void (*_onTxDone)();
-  void (*_onCrcError();
+  void (*_onCrcError)();
 };
 
 extern LoRaClass LoRa;
