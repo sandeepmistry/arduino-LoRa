@@ -675,9 +675,6 @@ void LoRaClass::handleDio0Rise()
       if (_onReceive) {
         _onReceive(packetLength);
       }
-
-      // reset FIFO address
-      writeRegister(REG_FIFO_ADDR_PTR, 0);
     }
     else if ((irqFlags & IRQ_TX_DONE_MASK) != 0) {
       if (_onTxDone) {
