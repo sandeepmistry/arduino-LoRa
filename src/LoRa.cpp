@@ -35,12 +35,16 @@
 #define REG_DETECTION_THRESHOLD  0x37
 #define REG_SYNC_WORD            0x39
 #define REG_INVERTIQ2            0x3b
+#define REG_IMAGECAL             0x3b
+#define REG_TEMP                 0x3c
 #define REG_DIO_MAPPING_1        0x40
 #define REG_VERSION              0x42
 #define REG_PA_DAC               0x4d
 
 // modes
 #define MODE_LONG_RANGE_MODE     0x80
+#define MODE_FSK_MODE            0x00
+
 #define MODE_SLEEP               0x00
 #define MODE_STDBY               0x01
 #define MODE_TX                  0x03
@@ -283,6 +287,29 @@ long LoRaClass::packetFrequencyError()
   const float fError = ((static_cast<float>(freqError) * (1L << 24)) / fXtal) * (getSignalBandwidth() / 500000.0f); // p. 37
 
   return static_cast<long>(fError);
+}
+
+int LoRaClass::temperature()
+{
+    uint8_t opModeState = readRegister(REG_OP_MODE);  
+    sleep();                                                        //must be in sleep mode in order to switch between FSK and long range mode
+    writeRegister(REG_OP_MODE, MODE_FSK_MODE | MODE_SLEEP);         //must be in FSK/OOK mode in order to access temp / imgage cal registers
+    writeRegister(REG_OP_MODE, MODE_FSK_MODE | MODE_RX_CONTINUOUS); //Temperature monitoring done in all modes except Sleep and Standby
+    
+    uint8_t imgCalState = readRegister(REG_IMAGECAL);
+    writeRegister(REG_IMAGECAL,imgCalState &!0x01);                 //enable temperature reading
+    delayMicroseconds(140);                                   
+    writeRegister(REG_IMAGECAL,imgCalState | 0x01);                 //stop temperature reading
+    uint8_t rawTemp = readRegister(REG_TEMP);
+    
+    sleep();                                                        //restore REG_OP_MODE trough sleep
+    writeRegister(REG_OP_MODE, opModeState);
+    
+    if((rawTemp&0x80)==0x80){                                       //datasheet unclear, int8_t would make more sense but this was example code
+        return(0xff - rawTemp);
+    }
+    return(-rawTemp);
+
 }
 
 size_t LoRaClass::write(uint8_t byte)
