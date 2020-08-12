@@ -15,7 +15,7 @@ Initialize the library with the specified frequency.
 ```arduino
 LoRa.begin(frequency);
 ```
- * `frequency` - frequency in Hz (`433E6`, `866E6`, `915E6`)
+ * `frequency` - frequency in Hz (`433E6`, `868E6`, `915E6`)
 
 Returns `1` on success, `0` on failure.
 
@@ -308,7 +308,7 @@ LoRa.setSignalBandwidth(signalBandwidth);
 
  * `signalBandwidth` - signal bandwidth in Hz, defaults to `125E3`.
 
-Supported values are `7.8E3`, `10.4E3`, `15.6E3`, `20.8E3`, `31.25E3`, `41.7E3`, `62.5E3`, `125E3`, and `250E3`.
+Supported values are `7.8E3`, `10.4E3`, `15.6E3`, `20.8E3`, `31.25E3`, `41.7E3`, `62.5E3`, `125E3`, `250E3`, and `500E3`.
 
 ### Coding Rate
 
