@@ -375,3 +375,12 @@ byte b = LoRa.random();
 ```
 
 Returns random byte.
+
+### Temperature
+
+Measures chip temperature in °C (blocking, ~150μs)
+(uncalibrated accuracy ±10°C)
+
+```
+int temp = LoRa.temperature();
+```

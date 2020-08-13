@@ -44,6 +44,8 @@ public:
   int packetRssi();
   float packetSnr();
   long packetFrequencyError();
+  
+  int temperature();
 
   // from Print
   virtual size_t write(uint8_t byte);
