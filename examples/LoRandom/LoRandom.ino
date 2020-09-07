@@ -64,7 +64,7 @@ void setup() {
   }
   Serial.print("Setting up LoRa ");
   
-  ifdef SAMR34
+  #ifdef SAMR34
   pinMode(RFM_SWITCH, OUTPUT);
   digitalWrite(RFM_SWITCH, 1);
   #endif
