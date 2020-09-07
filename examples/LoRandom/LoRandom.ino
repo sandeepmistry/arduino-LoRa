@@ -63,8 +63,12 @@ void setup() {
     while (1);
   }
   Serial.print("Setting up LoRa ");
+  
+  ifdef SAMR34
   pinMode(RFM_SWITCH, OUTPUT);
   digitalWrite(RFM_SWITCH, 1);
+  #endif
+  
   LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
   LoRa.setPreambleLength(8);
   LoRa.LoRandomSeed();
