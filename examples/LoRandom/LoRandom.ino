@@ -4,7 +4,7 @@
   Example demonstrating how to generate random numbers using LoRa.
 
   created 7 Sep 2020
-  by Konduino
+  by Kongduino
   adapted by Andres Sabas
   
   SX1276 Register (address)     Register bit field (bit #)      Values    Note
