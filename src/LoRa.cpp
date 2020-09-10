@@ -607,7 +607,7 @@ void LoRaClass::setOCP(uint8_t mA)
   writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));
 }
 
-void LoRaClass::LoRandomSeed() {
+void LoRaClass::beginRandom() {
   writeRegister(REG_OP_MODE, 0x72);
   writeRegister(REG_MODEM_CONFIG_1, 0x72);
   writeRegister(REG_MODEM_CONFIG_2, 0x70);
@@ -619,7 +619,6 @@ byte LoRaClass::random()
   for (uint8_t j = 0; j < 8; j++) {
     x += (readRegister(REG_RSSI_WIDEBAND) & 0x01);
     x = x << 1;
-    delay(1);
   }
   return x;
 }
