@@ -37,3 +37,4 @@ script:
   - buildExampleSketch LoRaSenderNonBlocking
   - buildExampleSketch LoRaSetSpread
   - buildExampleSketch LoRaSetSyncWord
+  - buildExampleSketch LoRandom
