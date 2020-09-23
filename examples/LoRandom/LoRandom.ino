@@ -15,7 +15,6 @@ void setup() {
   Serial.begin(9600);
   while(!Serial);
   Serial.print(F("\n\n\n[SX1276] Initializing ... "));
-  LoRa.setPins(SS, RFM_RST, RFM_DIO0);
   if (!LoRa.begin(868E6)) {
     Serial.println("Starting LoRa failed!");
     while (1);
