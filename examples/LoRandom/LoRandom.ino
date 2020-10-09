@@ -30,10 +30,10 @@ void setup() {
 void loop() {
   byte randomBytes[256];
   // We'll build a stock of random bytes for use in code
-  uint8_t randomIndex = 0;
-  uint16_t i;
+  int randomIndex = 0;
+  unsigned int  i;
   for (i = 0; i < 256; i++) {
-    uint8_t x = LoRa.random();
+    int x = LoRa.random();
     randomBytes[i] = x;
   }
   randomIndex = 0;
@@ -41,12 +41,12 @@ void loop() {
   delay(2000);
 }
 
-void hexDump(unsigned char *buf, uint16_t len) {
+void hexDump(unsigned char *buf,  unsigned int  len) {
   String s = "|", t = "| |";
   Serial.println(F("  |.0 .1 .2 .3 .4 .5 .6 .7 .8 .9 .a .b .c .d .e .f |"));
   Serial.println(F("  +------------------------------------------------+ +----------------+"));
-  for (uint16_t i = 0; i < len; i += 16) {
-    for (uint8_t j = 0; j < 16; j++) {
+  for ( unsigned int  i = 0; i < len; i += 16) {
+    for (int j = 0; j < 16; j++) {
       if (i + j >= len) {
         s = s + "   "; t = t + " ";
       } else {
