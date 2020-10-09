@@ -63,6 +63,7 @@ public:
 #endif
   void idle();
   void sleep();
+  void continuosMode();
 
   void setTxPower(int level, int outputPin = PA_OUTPUT_PA_BOOST_PIN);
   void setFrequency(long frequency);
