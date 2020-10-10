@@ -412,7 +412,7 @@ void LoRaClass::sleep()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
 }
 
-void LoRaClass::continuosMode()
+void LoRaClass::continuousMode()
 {
   writeRegister(REG_OP_MODE, 0x72);
 }
@@ -613,7 +613,7 @@ void LoRaClass::setOCP(uint8_t mA)
 }
 
 void LoRaClass::beginRandom() {
-  continuosMode();
+  continuousMode();
   setSignalBandwidth(125E3);
   setCodingRate4(5);
   setSpreadingFactor(7);
