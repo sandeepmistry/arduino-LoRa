@@ -366,6 +366,14 @@ LoRa.disableInvertIQ();
 
 ## Other functions
 
+### beginRandom
+
+Initializes the random number generator.
+
+```
+LoRa.beginRandom();
+```
+
 ### Random
 
 Generate a random byte, based on the Wideband RSSI measurement.

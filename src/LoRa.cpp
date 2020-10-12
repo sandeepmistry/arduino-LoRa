@@ -412,6 +412,11 @@ void LoRaClass::sleep()
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_SLEEP);
 }
 
+void LoRaClass::continuousRxMode()
+{
+  writeRegister(REG_OP_MODE, 0x72);
+}
+
 void LoRaClass::setTxPower(int level, int outputPin)
 {
   if (PA_OUTPUT_RFO_PIN == outputPin) {
@@ -607,9 +612,21 @@ void LoRaClass::setOCP(uint8_t mA)
   writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));
 }
 
+void LoRaClass::beginRandom() {
+  continuousRxMode();
+  setSignalBandwidth(125E3);
+  setCodingRate4(5);
+  setSpreadingFactor(7);
+}
+
 byte LoRaClass::random()
 {
-  return readRegister(REG_RSSI_WIDEBAND);
+  uint8_t x = 0;
+  for (uint8_t j = 0; j < 8; j++) {
+    x += (readRegister(REG_RSSI_WIDEBAND) & 0x01);
+    x = x << 1;
+  }
+  return x;
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)

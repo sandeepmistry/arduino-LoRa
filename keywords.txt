@@ -48,6 +48,7 @@ disableCrc	KEYWORD2
 enableInvertIQ	KEYWORD2
 disableInvertIQ	KEYWORD2
 
+beginRandom    KEYWORD2
 random	KEYWORD2
 setPins	KEYWORD2
 setSPIFrequency	KEYWORD2

@@ -81,7 +81,8 @@ public:
   // deprecated
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
-
+  
+  void beginRandom();
   byte random();
 
   void setPins(int ss = LORA_DEFAULT_SS_PIN, int reset = LORA_DEFAULT_RESET_PIN, int dio0 = LORA_DEFAULT_DIO0_PIN);
@@ -107,6 +108,8 @@ private:
   uint8_t singleTransfer(uint8_t address, uint8_t value);
 
   static void onDio0Rise();
+
+  void continuousRxMode();
 
 private:
   SPISettings _spiSettings;
