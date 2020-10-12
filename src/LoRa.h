@@ -63,7 +63,6 @@ public:
 #endif
   void idle();
   void sleep();
-  void continuousMode();
 
   void setTxPower(int level, int outputPin = PA_OUTPUT_PA_BOOST_PIN);
   void setFrequency(long frequency);
@@ -109,6 +108,8 @@ private:
   uint8_t singleTransfer(uint8_t address, uint8_t value);
 
   static void onDio0Rise();
+
+  void continuousRxMode();
 
 private:
   SPISettings _spiSettings;
