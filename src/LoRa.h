@@ -7,12 +7,18 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#ifdef ARDUINO_SAMD_MKRWAN1300
+#if defined(ARDUINO_SAMD_MKRWAN1300)
 #define LORA_DEFAULT_SPI           SPI1
-#define LORA_DEFAULT_SPI_FREQUENCY 250000
+#define LORA_DEFAULT_SPI_FREQUENCY 200000
 #define LORA_DEFAULT_SS_PIN        LORA_IRQ_DUMB
 #define LORA_DEFAULT_RESET_PIN     -1
 #define LORA_DEFAULT_DIO0_PIN      -1
+#elif defined(ARDUINO_SAMD_MKRWAN1310)
+#define LORA_DEFAULT_SPI           SPI1
+#define LORA_DEFAULT_SPI_FREQUENCY 200000
+#define LORA_DEFAULT_SS_PIN        LORA_IRQ_DUMB
+#define LORA_DEFAULT_RESET_PIN     -1
+#define LORA_DEFAULT_DIO0_PIN      LORA_IRQ
 #else
 #define LORA_DEFAULT_SPI           SPI
 #define LORA_DEFAULT_SPI_FREQUENCY 8E6 
@@ -51,6 +57,7 @@ public:
 
 #ifndef ARDUINO_SAMD_MKRWAN1300
   void onReceive(void(*callback)(int));
+  void onTxDone(void(*callback)());
 
   void receive(int size = 0);
 #endif
@@ -111,6 +118,7 @@ private:
   int _packetIndex;
   int _implicitHeaderMode;
   void (*_onReceive)(int);
+  void (*_onTxDone)();
 };
 
 extern LoRaClass LoRa;

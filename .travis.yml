@@ -10,6 +10,7 @@ env:
     - BOARD="arduino:samd:mkr1000"
     - BOARD="arduino:samd:mkrzero"
     - BOARD="arduino:samd:mkrwan1300"
+    - BOARD="arduino:samd:mkrwan1310"
 before_install:
   - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
   - tar xf arduino-$IDE_VERSION-linux64.tar.xz

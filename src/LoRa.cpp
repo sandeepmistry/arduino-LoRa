@@ -57,6 +57,12 @@
 
 #define MAX_PKT_LENGTH           255
 
+#if (ESP8266 || ESP32)
+    #define ISR_PREFIX ICACHE_RAM_ATTR
+#else
+    #define ISR_PREFIX
+#endif
+
 LoRaClass::LoRaClass() :
   _spiSettings(LORA_DEFAULT_SPI_FREQUENCY, MSBFIRST, SPI_MODE0),
   _spi(&LORA_DEFAULT_SPI),
@@ -64,7 +70,8 @@ LoRaClass::LoRaClass() :
   _frequency(0),
   _packetIndex(0),
   _implicitHeaderMode(0),
-  _onReceive(NULL)
+  _onReceive(NULL),
+  _onTxDone(NULL)
 {
   // overide Stream timeout value
   setTimeout(0);
@@ -72,7 +79,7 @@ LoRaClass::LoRaClass() :
 
 int LoRaClass::begin(long frequency)
 {
-#ifdef ARDUINO_SAMD_MKRWAN1300
+#if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
   pinMode(LORA_IRQ_DUMB, OUTPUT);
   digitalWrite(LORA_IRQ_DUMB, LOW);
 
@@ -171,13 +178,14 @@ int LoRaClass::beginPacket(int implicitHeader)
 
 int LoRaClass::endPacket(bool async)
 {
+  
+  if ((async) && (_onTxDone))
+      writeRegister(REG_DIO_MAPPING_1, 0x40); // DIO0 => TXDONE
+
   // put in TX mode
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
 
-  if (async) {
-    // grace time is required for the radio
-    delayMicroseconds(150);
-  } else {
+  if (!async) {
     // wait for TX done
     while ((readRegister(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0) {
       yield();
@@ -347,8 +355,24 @@ void LoRaClass::onReceive(void(*callback)(int))
 
   if (callback) {
     pinMode(_dio0, INPUT);
+#ifdef SPI_HAS_NOTUSINGINTERRUPT
+    SPI.usingInterrupt(digitalPinToInterrupt(_dio0));
+#endif
+    attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
+  } else {
+    detachInterrupt(digitalPinToInterrupt(_dio0));
+#ifdef SPI_HAS_NOTUSINGINTERRUPT
+    SPI.notUsingInterrupt(digitalPinToInterrupt(_dio0));
+#endif
+  }
+}
 
-    writeRegister(REG_DIO_MAPPING_1, 0x00);
+void LoRaClass::onTxDone(void(*callback)())
+{
+  _onTxDone = callback;
+
+  if (callback) {
+    pinMode(_dio0, INPUT);
 #ifdef SPI_HAS_NOTUSINGINTERRUPT
     SPI.usingInterrupt(digitalPinToInterrupt(_dio0));
 #endif
@@ -363,6 +387,9 @@ void LoRaClass::onReceive(void(*callback)(int))
 
 void LoRaClass::receive(int size)
 {
+
+  writeRegister(REG_DIO_MAPPING_1, 0x00); // DIO0 => RXDONE
+
   if (size > 0) {
     implicitHeaderMode();
 
@@ -658,21 +685,26 @@ void LoRaClass::handleDio0Rise()
   writeRegister(REG_IRQ_FLAGS, irqFlags);
 
   if ((irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
-    // received a packet
-    _packetIndex = 0;
 
-    // read packet length
-    int packetLength = _implicitHeaderMode ? readRegister(REG_PAYLOAD_LENGTH) : readRegister(REG_RX_NB_BYTES);
+    if ((irqFlags & IRQ_RX_DONE_MASK) != 0) {
+      // received a packet
+      _packetIndex = 0;
 
-    // set FIFO address to current RX address
-    writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
+      // read packet length
+      int packetLength = _implicitHeaderMode ? readRegister(REG_PAYLOAD_LENGTH) : readRegister(REG_RX_NB_BYTES);
 
-    if (_onReceive) {
-      _onReceive(packetLength);
+      // set FIFO address to current RX address
+      writeRegister(REG_FIFO_ADDR_PTR, readRegister(REG_FIFO_RX_CURRENT_ADDR));
+
+      if (_onReceive) {
+        _onReceive(packetLength);
+      }
     }
-
-    // reset FIFO address
-    writeRegister(REG_FIFO_ADDR_PTR, 0);
+    else if ((irqFlags & IRQ_TX_DONE_MASK) != 0) {
+      if (_onTxDone) {
+        _onTxDone();
+      }
+    }
   }
 }
 
@@ -702,7 +734,7 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
   return response;
 }
 
-void LoRaClass::onDio0Rise()
+ISR_PREFIX void LoRaClass::onDio0Rise()
 {
   LoRa.handleDio0Rise();
 }

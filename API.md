@@ -15,7 +15,7 @@ Initialize the library with the specified frequency.
 ```arduino
 LoRa.begin(frequency);
 ```
- * `frequency` - frequency in Hz (`433E6`, `866E6`, `915E6`)
+ * `frequency` - frequency in Hz (`433E6`, `868E6`, `915E6`)
 
 Returns `1` on success, `0` on failure.
 
@@ -37,6 +37,10 @@ This call is optional and only needs to be used if you need to change the defaul
 To save further pins one could connect the reset pin of the MCU with reset pin of the radio thus resetting only during startup.
 
 * `reset` - set to `-1` to omit this pin
+
+#### Pin dio0 interrupt callbacks
+
+The dio0 pin can be used for transmission finish callback and/or receiving callback, check `onTxDone` and `onReceive`.
 
 ### Set SPI interface
 
@@ -117,6 +121,24 @@ LoRa.endPacket(async);
 
 Returns `1` on success, `0` on failure.
 
+### Tx Done
+
+**WARNING**: TxDone callback uses the interrupt pin on the `dio0` check `setPins` function!
+
+### Register callback
+
+Register a callback function for when a packet transmission finish.
+
+```arduino
+LoRa.onTxDone(onTxDone);
+
+void onTxDone() {
+ // ...
+}
+```
+
+ * `onTxDone` - function to call when a packet transmission finish.
+
 ## Receiving data
 
 ### Parsing packet
@@ -136,7 +158,7 @@ Returns the packet size in bytes or `0` if no packet was received.
 
 ### Continuous receive mode
 
-**WARNING**: Not supported on the Arduino MKR WAN 1300 board!
+**WARNING**: Receive callback uses the interrupt pin on the `dio0`, check `setPins` function!
 
 #### Register callback
 
@@ -286,7 +308,7 @@ LoRa.setSignalBandwidth(signalBandwidth);
 
  * `signalBandwidth` - signal bandwidth in Hz, defaults to `125E3`.
 
-Supported values are `7.8E3`, `10.4E3`, `15.6E3`, `20.8E3`, `31.25E3`, `41.7E3`, `62.5E3`, `125E3`, and `250E3`.
+Supported values are `7.8E3`, `10.4E3`, `15.6E3`, `20.8E3`, `31.25E3`, `41.7E3`, `62.5E3`, `125E3`, `250E3`, and `500E3`.
 
 ### Coding Rate
 
