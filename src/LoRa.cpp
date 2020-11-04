@@ -178,7 +178,6 @@ int LoRaClass::beginPacket(int implicitHeader)
 
 int LoRaClass::endPacket(bool async)
 {
-  
   if ((async) && (_onTxDone))
       writeRegister(REG_DIO_MAPPING_1, 0x40); // DIO0 => TXDONE
 
@@ -637,6 +636,66 @@ void LoRaClass::dumpRegisters(Stream& out)
     out.print(": 0x");
     out.println(readRegister(i), HEX);
   }
+}
+
+void LoRaClass::readToBuffer(uint8_t *pBuffer)
+{
+  uint8_t i = 0;
+  while (LoRa.available()) {
+    pBuffer[i] = LoRa.read();
+    i++;
+  }
+}
+
+void LoRaClass::getPacketHeader(uint8_t *pBuffer, uint8_t *pHeader, uint8_t headerSize)
+{
+  memcpy(pHeader, pBuffer, headerSize*sizeof(pBuffer[0]));
+}
+
+void LoRaClass::getPacketMessage(uint8_t *pBuffer, uint8_t *pMessage, uint8_t packetSize, uint8_t headerSize)
+{
+  memcpy(pMessage, pBuffer+headerSize, (packetSize-headerSize)*sizeof(pBuffer[0]));
+}
+
+void LoRaClass::sendAck(uint8_t *pHeader)
+{
+  // do not send an ACK is there has been no request (identifier is 0x0)
+  // and this message is not a broadcast message
+  if ((pHeader[2] != 0x0) && (pHeader[0] != BROADCAST_ADDRESS))
+
+  // send ACK unless this was an ACK or a broadcast message
+  // if (((pHeader[3] && 0x80) == 0) && (pHeader[0] != BROADCAST_ADDRESS))
+  {
+    uint8_t ackMessage[5];
+    generateAckMessage(pHeader, ackMessage);
+
+    // send packet
+    LoRa.beginPacket();
+    for (int i = 0; i < sizeof(ackMessage)/sizeof(ackMessage[0]); i++) {
+      LoRa.write(ackMessage[i]);
+    }
+    LoRa.endPacket();
+  }
+  else
+  {
+    // no ACK requested or required
+  }
+}
+
+void LoRaClass::generateAckMessage(uint8_t *pHeader, uint8_t *pAckMessage)
+{
+  // ACK data see https://github.com/adafruit/Adafruit_CircuitPython_RFM9x/blob/6590c91a9146f41a7984a52febce9b21d0df8748/adafruit_rfm9x.py#L786
+  uint8_t data = 0x21;                // ACK data
+  uint8_t destination = pHeader[1];   // node who sent this message
+  uint8_t node = pHeader[0];          // target node (this node)
+  uint8_t identifier = pHeader[2];    // sequence number of this message
+  uint8_t flags = (pHeader[3] | 0x80);// additional flags
+
+  pAckMessage[0] = destination;
+  pAckMessage[1] = node;
+  pAckMessage[2] = identifier;
+  pAckMessage[3] = flags;
+  pAckMessage[4] = data;
 }
 
 void LoRaClass::explicitHeaderMode()
