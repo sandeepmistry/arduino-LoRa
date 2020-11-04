@@ -242,6 +242,70 @@ Returns the next byte in the packet or `-1` if no bytes are available.
 
 **Note:** Other Arduino [`Stream` API's](https://www.arduino.cc/en/Reference/Stream) can also be used to read data from the packet
 
+### Reading to buffer
+
+Read the full packet into a given buffer.
+
+```arduino
+int packetSize = LoRa.parsePacket();
+int packet[packetSize];
+LoRa.readToBuffer(packet);
+```
+
+`packet` contains the full message including the header and payload.
+
+### Get header of packet
+
+Extract the header of the message from the packet content.
+
+```arduino
+int packetSize = LoRa.parsePacket();
+int packet[packetSize];
+LoRa.readToBuffer(packet);
+
+int rawHeader[HEADER_SIZE];	// HEADER_SIZE is pre-defined by LoRa.h
+LoRa.getPacketHeader(packet, rawHeader);
+```
+
+`rawHeader` contains the first N bytes of the message. With N = `HEADER_SIZE`.
+
+### Get payload of packet
+
+Extract the payload of the message from the complete packet content.
+
+```arduino
+int packetSize = LoRa.parsePacket();
+int packet[packetSize];
+LoRa.readToBuffer(packet);
+
+int rawPayload[packetSize-HEADER_SIZE];	// HEADER_SIZE is pre-defined by LoRa.h
+LoRa.getPacketMessage(packet, rawPayload, packetSize);
+```
+
+`rawPayload` contains the actual payload of the message without the header.
+
+### Send ACK
+
+Send an ACK back to the sender.
+
+```arduino
+byte localAddress = 0x2;	// address of this device
+
+int packetSize = LoRa.parsePacket();
+int packet[packetSize];
+LoRa.readToBuffer(packet);
+
+int rawHeader[HEADER_SIZE];	// HEADER_SIZE is pre-defined by LoRa.h
+LoRa.getPacketHeader(packet, rawHeader);
+
+LoRa.sendAck(rawHeader, localAddress);
+```
+
+The ACK is only sent if all three conditions are fullfiled:
+ * the received message is not a broadcast message
+ * the sender requested an ACK from the recipient
+ * this node is the addressed recipient
+
 ## Other radio modes
 
 ### Idle mode
@@ -375,3 +439,20 @@ byte b = LoRa.random();
 ```
 
 Returns random byte.
+
+### Get recipient of message
+
+Extract the recipient of the packet from the header content.
+
+```arduino
+int packetSize = LoRa.parsePacket();
+int packet[packetSize];
+LoRa.readToBuffer(packet);
+
+int rawHeader[HEADER_SIZE];	// HEADER_SIZE is pre-defined by LoRa.h
+LoRa.getPacketHeader(packet, rawHeader);
+
+uint8_t recipient = LoRa.getRecipient(rawHeader);
+```
+
+`recipient` contains the address of this message.
