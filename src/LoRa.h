@@ -21,7 +21,7 @@
 #define LORA_DEFAULT_DIO0_PIN      LORA_IRQ
 #else
 #define LORA_DEFAULT_SPI           SPI
-#define LORA_DEFAULT_SPI_FREQUENCY 8E6 
+#define LORA_DEFAULT_SPI_FREQUENCY 8E6
 #define LORA_DEFAULT_SS_PIN        10
 #define LORA_DEFAULT_RESET_PIN     9
 #define LORA_DEFAULT_DIO0_PIN      2
@@ -29,6 +29,9 @@
 
 #define PA_OUTPUT_RFO_PIN          0
 #define PA_OUTPUT_PA_BOOST_PIN     1
+
+#define BROADCAST_ADDRESS          0xFF
+#define HEADER_SIZE                4
 
 class LoRaClass : public Stream {
 public:
@@ -75,7 +78,7 @@ public:
   void disableCrc();
   void enableInvertIQ();
   void disableInvertIQ();
-  
+
   void setOCP(uint8_t mA); // Over Current Protection control
 
   // deprecated
@@ -90,7 +93,13 @@ public:
 
   void dumpRegisters(Stream& out);
 
+  void readToBuffer(uint8_t *pBuffer);
+  void getPacketHeader(uint8_t *pBuffer, uint8_t *pHeader, uint8_t headerSize = HEADER_SIZE);
+  void getPacketMessage(uint8_t *pBuffer, uint8_t *pMessage, uint8_t packetSize, uint8_t headerSize = HEADER_SIZE);
+  void sendAck(uint8_t *pHeader);
 private:
+  void generateAckMessage(uint8_t *pHeader, uint8_t *pAckMessage);
+
   void explicitHeaderMode();
   void implicitHeaderMode();
 
