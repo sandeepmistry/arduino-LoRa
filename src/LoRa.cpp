@@ -657,8 +657,18 @@ void LoRaClass::getPacketMessage(uint8_t *pBuffer, uint8_t *pMessage, uint8_t pa
   memcpy(pMessage, pBuffer+headerSize, (packetSize-headerSize)*sizeof(pBuffer[0]));
 }
 
-void LoRaClass::sendAck(uint8_t *pHeader)
+uint8_t LoRaClass::getRecipient(uint8_t *pHeader)
 {
+  return pHeader[0];
+}
+
+void LoRaClass::sendAck(uint8_t *pHeader, uint8_t localAddress)
+{
+  if (LoRa.getRecipient(pHeader) != localAddress)
+  {
+    return;
+  }
+
   // do not send an ACK is there has been no request (identifier is 0x0)
   // and this message is not a broadcast message
   if ((pHeader[2] != 0x0) && (pHeader[0] != BROADCAST_ADDRESS))

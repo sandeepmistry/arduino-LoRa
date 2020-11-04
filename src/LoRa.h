@@ -96,7 +96,8 @@ public:
   void readToBuffer(uint8_t *pBuffer);
   void getPacketHeader(uint8_t *pBuffer, uint8_t *pHeader, uint8_t headerSize = HEADER_SIZE);
   void getPacketMessage(uint8_t *pBuffer, uint8_t *pMessage, uint8_t packetSize, uint8_t headerSize = HEADER_SIZE);
-  void sendAck(uint8_t *pHeader);
+  uint8_t getRecipient(uint8_t *pHeader);
+  void sendAck(uint8_t *pHeader, uint8_t localAddress);
 private:
   void generateAckMessage(uint8_t *pHeader, uint8_t *pAckMessage);
 
