@@ -363,6 +363,17 @@ LoRa.enableInvertIQ();
 
 LoRa.disableInvertIQ();
 ```
+### LNA Gain
+
+Set LNA Gain for better RX sensitivity, by default ADC is used and LNA Gain is not used.
+
+```arduino
+LoRa.setGain(gain);
+```
+
+ * `gain` - LNA gain
+
+Supported values are between `0` and `6`. If gain is 0, ADC will be enabled and LNA gain will not be used. Else if gain is from 1 to 6, ADC will be disabled and LNA gain will be used.
 
 ## Other functions
 
