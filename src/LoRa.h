@@ -77,6 +77,8 @@ public:
   void disableInvertIQ();
   
   void setOCP(uint8_t mA); // Over Current Protection control
+  
+  void setGain(uint8_t gain); // Set LNA gain
 
   // deprecated
   void crc() { enableCrc(); }

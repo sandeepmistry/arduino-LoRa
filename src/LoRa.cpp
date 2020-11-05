@@ -607,6 +607,32 @@ void LoRaClass::setOCP(uint8_t mA)
   writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));
 }
 
+void LoRaClass::setGain(uint8_t gain)
+{
+  // check allowed range
+  if(gain > 6) {
+	  gain = 6;
+  }
+  
+  // set to standby
+  idle();
+  
+  // set gain
+  if(gain == 0) {
+	// if gain = 0, enable AGC
+	writeRegister(REG_MODEM_CONFIG_3, 0x04);
+  } else {
+	// disable AGC
+	writeRegister(REG_MODEM_CONFIG_3, 0x00);
+	
+	// clear Gain and set LNA boost
+	writeRegister(REG_LNA, 0x03);
+	
+	// set gain
+	writeRegister(REG_LNA, readRegister(REG_LNA) | (gain << 5));
+  }
+}
+
 byte LoRaClass::random()
 {
   return readRegister(REG_RSSI_WIDEBAND);
