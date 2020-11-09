@@ -16,6 +16,9 @@ void setup() {
     while (1);
   }
 
+  // set LNA gain (optional)
+  // LoRa.setGain(6); ranges from 0-6, default 0, see API docs
+  
   // register the receive callback
   LoRa.onReceive(onReceive);
 
@@ -40,4 +43,3 @@ void onReceive(int packetSize) {
   Serial.print("' with RSSI ");
   Serial.println(LoRa.packetRssi());
 }
-
