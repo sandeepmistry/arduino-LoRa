@@ -17,7 +17,6 @@ void setup() {
   }
 
   // Uncomment the next line to disable the default AGC and set LNA gain, values between 1 - 6 are supported
-  // Comment the next line or setGain(0) to enable the default AGC
   // LoRa.setGain(6);
   
   // register the receive callback
