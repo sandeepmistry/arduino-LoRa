@@ -20,6 +20,7 @@
 #define REG_RX_NB_BYTES          0x13
 #define REG_PKT_SNR_VALUE        0x19
 #define REG_PKT_RSSI_VALUE       0x1a
+#define REG_HOP_CHANNEL          0x1c
 #define REG_MODEM_CONFIG_1       0x1d
 #define REG_MODEM_CONFIG_2       0x1e
 #define REG_PREAMBLE_MSB         0x20
@@ -580,6 +581,11 @@ void LoRaClass::enableCrc()
 void LoRaClass::disableCrc()
 {
   writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) & 0xfb);
+}
+
+bool LoRaClass::packetHasCrc()
+{
+	return (readRegister(REG_HOP_CHANNEL) >> 6) & 1;
 }
 
 void LoRaClass::enableInvertIQ()

@@ -45,6 +45,7 @@ setPreambleLength	KEYWORD2
 setSyncWord	KEYWORD2
 enableCrc	KEYWORD2
 disableCrc	KEYWORD2
+packetHasCrc  KEYWORD2
 enableInvertIQ	KEYWORD2
 disableInvertIQ	KEYWORD2
 setGain	KEYWORD2
