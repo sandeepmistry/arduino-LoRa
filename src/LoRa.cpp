@@ -258,8 +258,16 @@ int LoRaClass::parsePacket(int size)
 
 int LoRaClass::packetRssi()
 {
-  return (readRegister(REG_PKT_RSSI_VALUE) - (_frequency < 868E6 ? 164 : 157));
+int8_t snr =  ((int8_t)readRegister(REG_PKT_SNR_VALUE)) * 0.25;
+int8_t rssi =  readRegister(REG_PKT_RSSI_VALUE);
+
+  if(snr>0)
+  return (rssi + ( rssi >> 4 ) + snr - (_frequency < 868E6 ? 164 : 157)); 
+  
+  else
+  return (rssi + (rssi >> 4) - (_frequency < 868E6 ? 164 : 157));
 }
+
 
 float LoRaClass::packetSnr()
 {
