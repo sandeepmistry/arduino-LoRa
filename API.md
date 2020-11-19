@@ -169,7 +169,7 @@ The `onReceive` callback will be called when a packet is received.
 ### Packet RSSI
 
 ```arduino
-int pRssi = LoRa.packetRssi();
+int rssi = LoRa.packetRssi();
 ```
 
 Returns the averaged RSSI of the last received packet (dBm).
