@@ -23,6 +23,8 @@ packetRssi	KEYWORD2
 packetSnr	KEYWORD2
 packetFrequencyError	KEYWORD2
 
+rssi	KEYWORD2
+
 write	KEYWORD2
 
 available	KEYWORD2
