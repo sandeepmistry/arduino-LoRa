@@ -6,8 +6,8 @@ An [Arduino](https://arduino.cc/) library for sending and receiving data using [
 
 ## Compatible Hardware
 
- * [Semtech SX1276/77/78/79](http://www.semtech.com/apps/product.php?pn=SX1276) based boards including:
-   * [Dragino Lora Shield](http://www.dragino.com/products/lora/item/102-lora-shield.html)
+ * [Semtech SX1276/77/78/79](https://www.semtech.com/apps/product.php?pn=SX1276) based boards including:
+   * [Dragino Lora Shield](https://www.dragino.com/products/lora/item/102-lora-shield.html)
    * [HopeRF](https://www.hoperf.com/modules/lora/index.html) [RFM95W](https://www.hoperf.com/modules/lora/RFM95.html), [RFM96W](https://www.hoperf.com/modules/lora/RFM96.html), and [RFM98W](https://www.hoperf.com/modules/lora/RFM98.html)
    * [Modtronix](http://modtronix.com/) [inAir4](http://modtronix.com/inair4.html), [inAir9](http://modtronix.com/inair9.html), and [inAir9B](http://modtronix.com/inair9b.html)
  * [Arduino MKR WAN 1300](https://store.arduino.cc/usa/mkr-wan-1300)
