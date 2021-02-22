@@ -293,7 +293,7 @@ Change the frequency of the radio.
 ```arduino
 LoRa.setFrequency(frequency);
 ```
- * `frequency` - frequency in Hz (`433E6`, `866E6`, `915E6`)
+ * `frequency` - frequency in Hz (`433E6`, `868E6`, `915E6`)
 
 ### Spreading Factor
 
