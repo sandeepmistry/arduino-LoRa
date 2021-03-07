@@ -76,7 +76,8 @@ LoRaClass::LoRaClass() :
   _packetIndex(0),
   _implicitHeaderMode(0),
   _onReceive(NULL),
-  _onTxDone(NULL)
+  _onTxDone(NULL),
+  _onCrcError(NULL)
 {
   // overide Stream timeout value
   setTimeout(0);
@@ -394,6 +395,23 @@ void LoRaClass::onTxDone(void(*callback)())
 #endif
   }
 }
+
+void LoRaClass::onCrcError(void(*callback)()){
+	_onCrcError = callback;
+	
+  if (callback) {
+    pinMode(_dio0, INPUT);
+#ifdef SPI_HAS_NOTUSINGINTERRUPT
+    SPI.usingInterrupt(digitalPinToInterrupt(_dio0));
+#endif
+    attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
+  } else {
+    detachInterrupt(digitalPinToInterrupt(_dio0));
+#ifdef SPI_HAS_NOTUSINGINTERRUPT
+    SPI.notUsingInterrupt(digitalPinToInterrupt(_dio0));
+#endif
+  }
+}	
 
 void LoRaClass::receive(int size)
 {
@@ -717,6 +735,10 @@ void LoRaClass::handleDio0Rise()
         _onTxDone();
       }
     }
+  } else {
+	  if (_onCrcError) {
+		_onCrcError();
+	  }	
   }
 }
 

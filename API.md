@@ -188,6 +188,25 @@ LoRa.receive(int size);
 
 The `onReceive` callback will be called when a packet is received.
 
+
+### onCrcError
+
+**WARNING**: onCrcError callback uses the interrupt pin on the `dio0`, check `setPins` function!
+
+#### Register callback
+
+Register a callback function for when a received packet failed CRC check.
+
+```arduino
+LoRa.onCrcError(onCrcError);
+
+void onCrcError() {
+ // ...
+}
+```
+
+The `onCrcError` - function to call when a received packet failed CRC check.
+
 ### Packet RSSI
 
 ```arduino
