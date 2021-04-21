@@ -266,7 +266,11 @@ int LoRaClass::packetRssi()
   return (readRegister(REG_PKT_RSSI_VALUE) - (_frequency < RF_MID_BAND_THRESHOLD ? RSSI_OFFSET_LF_PORT : RSSI_OFFSET_HF_PORT));
 }
 
+#if !defined(ESP32)
 float LoRaClass::packetSnr()
+#else
+double LoRaClass::packetSnr()
+#endif
 {
   return ((int8_t)readRegister(REG_PKT_SNR_VALUE)) * 0.25;
 }
@@ -284,8 +288,13 @@ long LoRaClass::packetFrequencyError()
      freqError -= 524288; // B1000'0000'0000'0000'0000
   }
 
+#if !defined(ESP32)
   const float fXtal = 32E6; // FXOSC: crystal oscillator (XTAL) frequency (2.5. Chip Specification, p. 14)
   const float fError = ((static_cast<float>(freqError) * (1L << 24)) / fXtal) * (getSignalBandwidth() / 500000.0f); // p. 37
+#else
+  const double fXtal = 32E6; // FXOSC: crystal oscillator (XTAL) frequency (2.5. Chip Specification, p. 14)
+  const double fError = ((static_cast<double>(freqError) * (1L << 24)) / fXtal) * (getSignalBandwidth() / 500000.0); // p. 37
+#endif
 
   return static_cast<long>(fError);
 }

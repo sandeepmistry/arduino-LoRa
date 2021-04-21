@@ -42,7 +42,11 @@ public:
 
   int parsePacket(int size = 0);
   int packetRssi();
+#if !defined(ESP32)
   float packetSnr();
+#else
+  double packetSnr();
+#endif
   long packetFrequencyError();
 
   int rssi();
