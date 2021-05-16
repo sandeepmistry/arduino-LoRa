@@ -20,6 +20,7 @@
 #define REG_RX_NB_BYTES          0x13
 #define REG_PKT_SNR_VALUE        0x19
 #define REG_PKT_RSSI_VALUE       0x1a
+#define REG_RSSI_VALUE           0x1b
 #define REG_MODEM_CONFIG_1       0x1d
 #define REG_MODEM_CONFIG_2       0x1e
 #define REG_PREAMBLE_MSB         0x20
@@ -54,6 +55,10 @@
 #define IRQ_TX_DONE_MASK           0x08
 #define IRQ_PAYLOAD_CRC_ERROR_MASK 0x20
 #define IRQ_RX_DONE_MASK           0x40
+
+#define RF_MID_BAND_THRESHOLD    525E6
+#define RSSI_OFFSET_HF_PORT      157
+#define RSSI_OFFSET_LF_PORT      164
 
 #define MAX_PKT_LENGTH           255
 
@@ -258,7 +263,7 @@ int LoRaClass::parsePacket(int size)
 
 int LoRaClass::packetRssi()
 {
-  return (readRegister(REG_PKT_RSSI_VALUE) - (_frequency < 868E6 ? 164 : 157));
+  return (readRegister(REG_PKT_RSSI_VALUE) - (_frequency < RF_MID_BAND_THRESHOLD ? RSSI_OFFSET_LF_PORT : RSSI_OFFSET_HF_PORT));
 }
 
 float LoRaClass::packetSnr()
@@ -283,6 +288,11 @@ long LoRaClass::packetFrequencyError()
   const float fError = ((static_cast<float>(freqError) * (1L << 24)) / fXtal) * (getSignalBandwidth() / 500000.0f); // p. 37
 
   return static_cast<long>(fError);
+}
+
+int LoRaClass::rssi()
+{
+  return (readRegister(REG_RSSI_VALUE) - (_frequency < RF_MID_BAND_THRESHOLD ? RSSI_OFFSET_LF_PORT : RSSI_OFFSET_HF_PORT));
 }
 
 size_t LoRaClass::write(uint8_t byte)
@@ -605,6 +615,32 @@ void LoRaClass::setOCP(uint8_t mA)
   }
 
   writeRegister(REG_OCP, 0x20 | (0x1F & ocpTrim));
+}
+
+void LoRaClass::setGain(uint8_t gain)
+{
+  // check allowed range
+  if (gain > 6) {
+    gain = 6;
+  }
+  
+  // set to standby
+  idle();
+  
+  // set gain
+  if (gain == 0) {
+    // if gain = 0, enable AGC
+    writeRegister(REG_MODEM_CONFIG_3, 0x04);
+  } else {
+    // disable AGC
+    writeRegister(REG_MODEM_CONFIG_3, 0x00);
+	
+    // clear Gain and set LNA boost
+    writeRegister(REG_LNA, 0x03);
+	
+    // set gain
+    writeRegister(REG_LNA, readRegister(REG_LNA) | (gain << 5));
+  }
 }
 
 byte LoRaClass::random()

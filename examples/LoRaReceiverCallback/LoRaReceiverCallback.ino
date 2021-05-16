@@ -16,6 +16,9 @@ void setup() {
     while (1);
   }
 
+  // Uncomment the next line to disable the default AGC and set LNA gain, values between 1 - 6 are supported
+  // LoRa.setGain(6);
+  
   // register the receive callback
   LoRa.onReceive(onReceive);
 
@@ -40,4 +43,3 @@ void onReceive(int packetSize) {
   Serial.print("' with RSSI ");
   Serial.println(LoRa.packetRssi());
 }
-

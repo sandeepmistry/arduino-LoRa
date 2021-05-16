@@ -23,6 +23,8 @@ packetRssi	KEYWORD2
 packetSnr	KEYWORD2
 packetFrequencyError	KEYWORD2
 
+rssi	KEYWORD2
+
 write	KEYWORD2
 
 available	KEYWORD2
@@ -47,6 +49,7 @@ enableCrc	KEYWORD2
 disableCrc	KEYWORD2
 enableInvertIQ	KEYWORD2
 disableInvertIQ	KEYWORD2
+setGain	KEYWORD2
 
 random	KEYWORD2
 setPins	KEYWORD2
