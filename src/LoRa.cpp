@@ -751,4 +751,32 @@ ISR_PREFIX void LoRaClass::onDio0Rise()
   LoRa.handleDio0Rise();
 }
 
+double LoRaClass::Airtime_Message()
+{
+  int SF = getSpreadingFactor();
+  int BW = getSignalBandwidth();
+  int H = _implicitHeaderMode;
+  int PL = readRegister(REG_PAYLOAD_LENGTH);
+  int DE = 0;
+  if (((BW == 125E3) && ((SF == 11) || (SF == 12))) ||
+      ((BW == 250E3) && (SF == 12)))
+  {
+    DE = 1;
+  }
+  else
+  {
+    DE = 0;
+  }
+
+  int CR = (readRegister(REG_MODEM_CONFIG_1) & 0xf1) + 4;
+
+  double Tsym = pow(2, SF) / (BW)*1000;
+  double Tpreamble = (8 + 4.25) * Tsym;
+  int PrePay = ceil((8.0 * PL - 4.0 * SF + 28 + 16 - 20 * (1 - H)) / (4.0 * (SF - 2.0 * DE))) * (CR);
+  int payloadSymbNb = 8 + _max(PrePay, 0);
+  double Tpayload = payloadSymbNb * Tsym;
+  double Tpacket = Tpreamble + Tpayload;
+  return Tpacket;
+}
+
 LoRaClass LoRa;
