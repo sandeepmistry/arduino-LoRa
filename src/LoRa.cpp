@@ -565,7 +565,7 @@ void LoRaClass::setCodingRate4(int denominator)
   } else if (denominator > 8) {
     denominator = 8;
   }
-
+  _coderate = denominator; // save coderate
   int cr = denominator - 4;
 
   writeRegister(REG_MODEM_CONFIG_1, (readRegister(REG_MODEM_CONFIG_1) & 0xf1) | (cr << 1));
@@ -755,7 +755,7 @@ double LoRaClass::Airtime_Message()
 {
   int SF = getSpreadingFactor();
   int BW = getSignalBandwidth();
-  int H = _implicitHeaderMode;
+  int H = _implicitHeaderMode; // save header mode 
   int PL = readRegister(REG_PAYLOAD_LENGTH);
   int DE = 0;
   if (((BW == 125E3) && ((SF == 11) || (SF == 12))) ||
