@@ -93,7 +93,7 @@ public:
   void setSPIFrequency(uint32_t frequency);
 
   void dumpRegisters(Stream& out);
-
+  double Airtime_Message();
 private:
   void explicitHeaderMode();
   void implicitHeaderMode();
@@ -123,6 +123,7 @@ private:
   int _implicitHeaderMode;
   void (*_onReceive)(int);
   void (*_onTxDone)();
+  int _coderate;
 };
 
 extern LoRaClass LoRa;
