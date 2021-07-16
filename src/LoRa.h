@@ -87,6 +87,7 @@ public:
   void noCrc() { disableCrc(); }
 
   byte random();
+  void random(uint8_t *buffer, size_t size);
 
   void setPins(int ss = LORA_DEFAULT_SS_PIN, int reset = LORA_DEFAULT_RESET_PIN, int dio0 = LORA_DEFAULT_DIO0_PIN);
   void setSPI(SPIClass& spi);
@@ -111,6 +112,8 @@ private:
   uint8_t singleTransfer(uint8_t address, uint8_t value);
 
   static void onDio0Rise();
+
+  void random0(uint8_t *buffer, size_t size);
 
 private:
   SPISettings _spiSettings;

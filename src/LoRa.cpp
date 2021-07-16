@@ -62,6 +62,12 @@
 
 #define MAX_PKT_LENGTH           255
 
+// Setup random number generation
+#define RNDM_SIGNAL_BANDWIDTH 0x70  // 125E3
+#define RNDM_CODING_RATE      0x02  // 4/5
+#define RNDM_HEADER_MODE      0x00  // explicit heade mode
+#define RNDM_SPREADING_FACTOR 0x70  // 7
+
 #if (ESP8266 || ESP32)
     #define ISR_PREFIX ICACHE_RAM_ATTR
 #else
@@ -643,9 +649,68 @@ void LoRaClass::setGain(uint8_t gain)
   }
 }
 
+void LoRaClass::random0(uint8_t *buffer, size_t size){
+  for(size_t i=size; i>0; i--){
+    uint8_t nbr;
+    for (uint8_t j = 0; j < 8; j++) {
+      nbr = nbr << 1;
+      nbr += readRegister(REG_RSSI_WIDEBAND) & 0x1;
+      //nbr = nbr << 1; // At the end this would shift the first random
+	                // bit out! nbr would be always an even number.
+    }
+    *buffer++=nbr;
+  }
+}
+
+//#define RANDOMUSEAPI
+void LoRaClass::random(uint8_t *buffer, size_t size){
+  // Saving current state
+  uint8_t crntOpMode=readRegister(REG_OP_MODE);
+
+#ifdef RANDOMUSEAPI
+  long crntBW=getSignalBandwidth();
+  uint8_t crntCR=((readRegister(REG_MODEM_CONFIG_1)>> 1) & 0b111) + 4; // getCodingRate()
+  int crntIHM=_implicitHeaderMode;
+  uint8_t crntSF=getSpreadingFactor();
+
+  // Setup for random number generation
+  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
+  setSignalBandwidth(125E3);
+  setCodingRate4(5);
+  if (_implicitHeaderMode)
+    explicitHeaderMode();
+  setSpreadingFactor(7);
+#else
+  uint8_t crntModemConfig1=readRegister(REG_MODEM_CONFIG_1);
+  uint8_t crntModemConfig2=readRegister(REG_MODEM_CONFIG_2);
+
+  // Setup for random number generation
+  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
+  writeRegister(REG_MODEM_CONFIG_1,RNDM_SIGNAL_BANDWIDTH|RNDM_CODING_RATE|RNDM_HEADER_MODE);
+  writeRegister(REG_MODEM_CONFIG_2,RNDM_SPREADING_FACTOR);
+#endif
+
+  random0(buffer, size);
+
+  // Resetting crnt state
+  writeRegister(REG_OP_MODE, crntOpMode);
+#ifdef RANDOMUSEAPI
+  setSignalBandwidth(crntBW);
+  setCodingRate4(crntCR);
+  if (crntIHM)
+    implicitHeaderMode();
+  setSpreadingFactor(crntSF);
+#else
+  writeRegister(REG_MODEM_CONFIG_1, crntModemConfig1);
+  writeRegister(REG_MODEM_CONFIG_2, crntModemConfig2);
+#endif
+}
+
 byte LoRaClass::random()
 {
-  return readRegister(REG_RSSI_WIDEBAND);
+  byte nbr;
+  random(&nbr, 1);
+  return nbr;
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)
