@@ -16,6 +16,7 @@
 #define REG_FIFO_TX_BASE_ADDR    0x0e
 #define REG_FIFO_RX_BASE_ADDR    0x0f
 #define REG_FIFO_RX_CURRENT_ADDR 0x10
+#define REG_IRQ_FLAGS_MASK       0x11
 #define REG_IRQ_FLAGS            0x12
 #define REG_RX_NB_BYTES          0x13
 #define REG_PKT_SNR_VALUE        0x19
@@ -649,61 +650,58 @@ void LoRaClass::setGain(uint8_t gain)
   }
 }
 
-void LoRaClass::random0(uint8_t *buffer, size_t size){
-  for(size_t i=size; i>0; i--){
-    uint8_t nbr;
-    for (uint8_t j = 0; j < 8; j++) {
-      nbr = nbr << 1;
-      nbr += readRegister(REG_RSSI_WIDEBAND) & 0x1;
-      //nbr = nbr << 1; // At the end this would shift the first random
-	                // bit out! nbr would be always an even number.
-    }
+byte LoRaClass::rssi_wideband()
+{
+  return readRegister(REG_RSSI_WIDEBAND);
+}
+
+// As suggested in AN1200.24 from Semtech with basic von Neumann
+// extractor (see
+// https://en.wikipedia.org/wiki/Bernoulli_process#Bernoulli_sequence)
+void LoRaClass::random0(uint8_t *buffer, size_t size)
+{
+  for(size_t i=size; i--;){
+    uint8_t bit, nbr=0, j=8;
+    
+    while(j)
+      if((bit=readRegister(REG_RSSI_WIDEBAND) & 0x1)!=
+	 (readRegister(REG_RSSI_WIDEBAND) & 0x1)){
+	nbr += nbr + bit;
+	j--;
+      }
+
     *buffer++=nbr;
   }
 }
 
-//#define RANDOMUSEAPI
-void LoRaClass::random(uint8_t *buffer, size_t size){
+void LoRaClass::random(uint8_t *buffer, size_t size)
+{
+  // Waiting until send is finished
+  while ((readRegister(REG_OP_MODE) & MODE_TX) == MODE_TX)
+    yield();
+  
   // Saving current state
   uint8_t crntOpMode=readRegister(REG_OP_MODE);
-
-#ifdef RANDOMUSEAPI
-  long crntBW=getSignalBandwidth();
-  uint8_t crntCR=((readRegister(REG_MODEM_CONFIG_1)>> 1) & 0b111) + 4; // getCodingRate()
-  int crntIHM=_implicitHeaderMode;
-  uint8_t crntSF=getSpreadingFactor();
-
-  // Setup for random number generation
-  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
-  setSignalBandwidth(125E3);
-  setCodingRate4(5);
-  if (_implicitHeaderMode)
-    explicitHeaderMode();
-  setSpreadingFactor(7);
-#else
   uint8_t crntModemConfig1=readRegister(REG_MODEM_CONFIG_1);
   uint8_t crntModemConfig2=readRegister(REG_MODEM_CONFIG_2);
+  uint8_t crntIRQFlagsMask=readRegister(REG_IRQ_FLAGS_MASK);
 
+  // Disable all interrupts (so we won't receive a packet)
+  writeRegister(REG_IRQ_FLAGS_MASK, 0xFF);
+  
   // Setup for random number generation
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
   writeRegister(REG_MODEM_CONFIG_1,RNDM_SIGNAL_BANDWIDTH|RNDM_CODING_RATE|RNDM_HEADER_MODE);
   writeRegister(REG_MODEM_CONFIG_2,RNDM_SPREADING_FACTOR);
-#endif
 
+  // Collecting random numbers
   random0(buffer, size);
 
-  // Resetting crnt state
-  writeRegister(REG_OP_MODE, crntOpMode);
-#ifdef RANDOMUSEAPI
-  setSignalBandwidth(crntBW);
-  setCodingRate4(crntCR);
-  if (crntIHM)
-    implicitHeaderMode();
-  setSpreadingFactor(crntSF);
-#else
+  // Restoring current state
   writeRegister(REG_MODEM_CONFIG_1, crntModemConfig1);
   writeRegister(REG_MODEM_CONFIG_2, crntModemConfig2);
-#endif
+  writeRegister(REG_OP_MODE, crntOpMode);
+  writeRegister(REG_IRQ_FLAGS_MASK, crntIRQFlagsMask);
 }
 
 byte LoRaClass::random()

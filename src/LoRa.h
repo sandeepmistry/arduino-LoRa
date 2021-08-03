@@ -86,6 +86,7 @@ public:
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
 
+  byte rssi_wideband(); // RSSI wideband meassurement
   byte random();
   void random(uint8_t *buffer, size_t size);
 
