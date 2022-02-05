@@ -181,7 +181,7 @@ int LoRaClass::beginPacket(int implicitHeader)
   return 1;
 }
 
-int LoRaClass::endPacket(bool async)
+ICACHE_RAM_ATTR int LoRaClass::endPacket(bool async)
 {
   
   if ((async) && (_onTxDone))
@@ -197,6 +197,8 @@ int LoRaClass::endPacket(bool async)
     }
     // clear IRQ's
     writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
+    writeRegister(REG_DIO_MAPPING_1, 0x00); // DIO0 => RXDONE
+    writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
   }
 
   return 1;
