@@ -6,6 +6,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
+#include <functional>
 
 #if defined(ARDUINO_SAMD_MKRWAN1300)
 #define LORA_DEFAULT_SPI           SPI1
@@ -58,8 +59,8 @@ public:
   virtual void flush();
 
 #ifndef ARDUINO_SAMD_MKRWAN1300
-  void onReceive(void(*callback)(int));
-  void onTxDone(void(*callback)());
+  void onReceive(std::function<void (int)> callback);
+  void onTxDone(std::function<void ()> callback);
 
   void receive(int size = 0);
 #endif
@@ -121,8 +122,8 @@ private:
   long _frequency;
   int _packetIndex;
   int _implicitHeaderMode;
-  void (*_onReceive)(int);
-  void (*_onTxDone)();
+  std::function<void (int)> _onReceive;
+  std::function<void ()> _onTxDone;
 };
 
 extern LoRaClass LoRa;
