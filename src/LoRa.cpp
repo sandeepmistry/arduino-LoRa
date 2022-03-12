@@ -268,7 +268,12 @@ int LoRaClass::packetRssi()
 
 float LoRaClass::packetSnr()
 {
-  return ((int8_t)readRegister(REG_PKT_SNR_VALUE)) * 0.25;
+  return packetSnrRaw() * 0.25;
+}
+
+int LoRaClass::packetSnrRaw()
+{
+  return ((int8_t)readRegister(REG_PKT_SNR_VALUE));
 }
 
 long LoRaClass::packetFrequencyError()
