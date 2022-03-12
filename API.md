@@ -204,6 +204,14 @@ float snr = LoRa.packetSnr();
 
 Returns the estimated SNR of the received packet in dB.
 
+### Packet SNR Raw
+
+```arduino
+int snrRaw = LoRa.packetSnrRaw();
+```
+
+Like [`LoRa.packetSnr()`](#packet-snr) except it returns an `int` that is 4 times the SNR of the received packet in dB.
+
 ## RSSI
 
 ```arduino
