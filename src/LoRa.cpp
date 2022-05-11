@@ -585,6 +585,9 @@ void LoRaClass::setSyncWord(int sw)
 
 void LoRaClass::setRxSingleTimeout(uint16_t symbols) 
 {
+	if (symbols > 1023) {
+		symbols = 1023;
+	}
 	writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) | (symbols >> 8));
 	writeRegister(REG_SYMB_TIMEOUT_LSB, (symbols & 0xFF));
 }
