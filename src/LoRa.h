@@ -73,6 +73,7 @@ public:
   void setCodingRate4(int denominator);
   void setPreambleLength(long length);
   void setSyncWord(int sw);
+  void setRxSingleTimeout(uint16_t symbols);
   void enableCrc();
   void disableCrc();
   void enableInvertIQ();
