@@ -359,7 +359,7 @@ void LoRaClass::flush()
 }
 
 #ifndef ARDUINO_SAMD_MKRWAN1300
-void LoRaClass::onReceive(void(*callback)(int))
+void LoRaClass::onReceive(std::function<void (int)> callback)
 {
   _onReceive = callback;
 
@@ -377,7 +377,7 @@ void LoRaClass::onReceive(void(*callback)(int))
   }
 }
 
-void LoRaClass::onTxDone(void(*callback)())
+void LoRaClass::onTxDone(std::function<void ()> callback)
 {
   _onTxDone = callback;
 
