@@ -127,7 +127,9 @@ Returns `1` on success, `0` on failure.
 
 ### Register callback
 
-Register a callback function for when a packet transmission finish.
+Register a callback function for when a packet transmission finish. `NOTE:` Only write simple
+function to manipulate a state variable. Then use the variable to do action in loop(). Also,
+delay() will not work as it is an interrupt callback.
 
 ```arduino
 LoRa.onTxDone(onTxDone);
@@ -162,7 +164,9 @@ Returns the packet size in bytes or `0` if no packet was received.
 
 #### Register callback
 
-Register a callback function for when a packet is received.
+Register a callback function for when a packet is received. `NOTE:` Only write simple
+function to manipulate a state variable. Then use the variable to do action in loop(). Also,
+delay() will not work as it is an interrupt callback.
 
 ```arduino
 LoRa.onReceive(onReceive);
