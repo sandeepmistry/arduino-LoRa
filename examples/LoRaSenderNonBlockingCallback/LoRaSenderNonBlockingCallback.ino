@@ -1,7 +1,8 @@
 #include <SPI.h>
 #include <LoRa.h>
 
-int counter = 0;
+int  counter = 0;
+bool txDone  = false; // keeps track of txDone for onTxDone
 
 void setup() {
   Serial.begin(9600);
@@ -14,10 +15,14 @@ void setup() {
     while (1);
   }
 
-  LoRa.onTxDone(onTxDone);
+  // onTxDone calls interrupt internally. should run only tiny amount of code
+  // any heavylifting should handled in the loop
+  // also, should not contain any timer based delay calls
+  LoRa.onTxDone([] { txDone = true; });
 }
 
 void loop() {
+  if (txDone) onTxDone();
   if (runEvery(5000)) { // repeat every 5000 millis
 
     Serial.print("Sending packet non-blocking: ");
@@ -35,6 +40,8 @@ void loop() {
 
 void onTxDone() {
   Serial.println("TxDone");
+  txDone = false;         // reset packetReceived so that
+                          // onTxDone only runs once per tx
 }
 
 boolean runEvery(unsigned long interval)

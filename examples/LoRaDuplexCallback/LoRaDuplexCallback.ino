@@ -29,6 +29,7 @@ byte localAddress = 0xBB;     // address of this device
 byte destination = 0xFF;      // destination to send to
 long lastSendTime = 0;        // last send time
 int interval = 2000;          // interval between sends
+int packetReceived = 0;       // keeps track of packetReceived for onReceiveCallback
 
 void setup() {
   Serial.begin(9600);                   // initialize serial
@@ -44,12 +45,16 @@ void setup() {
     while (true);                       // if failed, do nothing
   }
 
-  LoRa.onReceive(onReceive);
+  // onReceive calls interrupt internally. should run only tiny amount of code
+  // any heavylifting should handled in the loop
+  // also, should not contain any timer based delay calls
+  LoRa.onReceive([](int packetLength) { packetReceived = packetLength; });
   LoRa.receive();
   Serial.println("LoRa init succeeded.");
 }
 
 void loop() {
+  if (packetReceived) onReceive();
   if (millis() - lastSendTime > interval) {
     String message = "HeLoRa World!";   // send a message
     sendMessage(message);
@@ -71,8 +76,8 @@ void sendMessage(String outgoing) {
   msgCount++;                           // increment message ID
 }
 
-void onReceive(int packetSize) {
-  if (packetSize == 0) return;          // if there's no packet, return
+void onReceive() {
+  if (!packetReceived) return;          // if there's no packet, return
 
   // read packet header bytes:
   int recipient = LoRa.read();          // recipient address
@@ -106,5 +111,8 @@ void onReceive(int packetSize) {
   Serial.println("RSSI: " + String(LoRa.packetRssi()));
   Serial.println("Snr: " + String(LoRa.packetSnr()));
   Serial.println();
+
+  packetReceived = 0;                   // reset packetReceived so that
+                                        // onReceive only runs once per packet
 }
 
