@@ -2,8 +2,21 @@
 
 adds support to **real random numbers** to this library.
 
+The new functions are
+ ``` c
+   byte rssi_wideband(); // RSSI wideband meassurement - the original "random" fuction
+   byte random();
+   void random(uint8_t *buffer, size_t size);
+ ```
+There is some overhead in creating random numbers. So if you need more then one you should use `random(byte *, size_t)`.
 
-## How it is done?
+The new random functions takes care about send and receive during a call. They wait until a processed packet is fully send and switches of any IRQs during collecting randomness. Before returning all parameters are set to the original state. 
+
+A long time ago I suggested change request [#496](https://github.com/sandeepmistry/arduino-LoRa/pull/496) but until now nothing happend.
+
+If you need not only a palmful random numbers you can have a look at library [LoRandom](https://github.com/Kongduino/LoRandom).
+
+## How is it done?
 It first renames the original function `byte random()` to `byte rssi_wideband()` as this is what this function does! It depends on the location of the meassurement and gives only random values from 0 to MAX with MAX<<255. The result (see [here](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-widebandRSSI.png)) looks strongly biased. In my case only numbers between 0 and 31 are returned!
 
 There is an description how to generate random numbers in Application Note AN1200.24 from Semtech.  See Chapter 4 [Random Number Generation for Cryptography](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/440000001NAw/7YN8ZamV70_xR.vPDAAAshm.0Wt4jmRX0nOKkOzQqiI).
