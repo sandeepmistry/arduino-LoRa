@@ -10,14 +10,16 @@ The new functions are
  ```
 There is some overhead in creating random numbers. So if you need more then one you should use `random(byte *, size_t)`.
 
-The new random functions takes care about send and receive during a call. They wait until a processed packet is fully send and switches of any IRQs during collecting randomness. Before returning all parameters are set to the original state. 
+The improved function takes care if a packet is just to go over the air. It waits until the transmit is finished before setting up for random number generation.
+
+In general you can not receive a wanted packet after setting up for random number generation. This is because of the fact that bandwidth, spreading factor, and coding rate is changed. For this reason I disable the interrupt IRQ_RX_DONE so no accidental receive will disturb us. In fact all interrupts on the SX127# will be disabled to be on the sure side. After finishing the collection of random numbers all the interrupts are restored to the previous state. Before returning all parameters are set to the original state. 
 
 A long time ago I suggested change request [#496](https://github.com/sandeepmistry/arduino-LoRa/pull/496) but until now nothing happend.
 
 If you need not only a palmful random numbers you can have a look at library [LoRandom](https://github.com/Kongduino/LoRandom).
 
 ## How is it done?
-It first renames the original function `byte random()` to `byte rssi_wideband()` as this is what this function does! It depends on the location of the meassurement and gives only random values from 0 to MAX with MAX<<255. The result (see [here](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-widebandRSSI.png)) looks strongly biased. In my case only numbers between 0 and 31 are returned!
+It first renames the original function `byte random()` to `byte rssi_wideband()` as this is what this function does! It depends on the location of the meassurement and gives only random values from 0 to MAX with MAX<<255. The result (see [here](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-widebandRSSI.png)) looks strongly biased. In my case only numbers between 0 and 31 are returned! The cureves are for 20, 50, 200, 1000, ... samples. The more samples you have the better shows the bias up.
 
 There is an description how to generate random numbers in Application Note AN1200.24 from Semtech.  See Chapter 4 [Random Number Generation for Cryptography](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/440000001NAw/7YN8ZamV70_xR.vPDAAAshm.0Wt4jmRX0nOKkOzQqiI).
 
@@ -25,7 +27,7 @@ To generate an N bit random number, perform N read operation of the register Reg
 
 Doing so gives this [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24.png). It looks like bit '1' is prefered in comparion to bit '0'. So binary numbers with many '1' occure more often. But we get the whole range of possible numbers.
 
-Last, we add a basic von Neumann extractor which  produce a uniform output even if the distribution of input bits is not uniform so long as each bit has the same probability of being one and there is no correlation between successive bits (see [Bernoulli_sequence@wikipedia](https://en.wikipedia.org/wiki/Bernoulli_process#Bernoulli_sequence) and [Randomness_extractor@wikipedia](https://en.wikipedia.org/wiki/Randomness_extractor)). The [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24-Neumann.png) shows random numbers without bias. The function reproduces the mean value when we pull enough numbers.
+Last, we add a basic von Neumann extractor which  produce a uniform output even if the distribution of input bits is not uniform so long as each bit has the same probability of being one and there is no correlation between successive bits (see [Bernoulli_sequence@wikipedia](https://en.wikipedia.org/wiki/Bernoulli_process#Bernoulli_sequence) and [Randomness_extractor@wikipedia](https://en.wikipedia.org/wiki/Randomness_extractor)). This extractor is whitening some LSBs of RSSI wide-band measurements for each random byte. The [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24-Neumann.png) shows random numbers without bias. The function reproduces the mean value when we pull enough numbers.
 
 **Using the program [ENT](http://www.fourmilab.ch/random/) from fourmilab gives**
 
