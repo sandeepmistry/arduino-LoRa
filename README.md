@@ -2,15 +2,15 @@
 
 adds support to **real random numbers** to this library.
 
-The new functions are
+The new methods are
  ``` c
-   byte rssi_wideband(); // RSSI wideband meassurement - the original "random" fuction
+   byte rssi_wideband(); // RSSI wideband meassurement - the original "random" method
    byte random();
    void random(uint8_t *buffer, size_t size);
  ```
-There is some overhead in creating random numbers. So if you need more then one you should use `random(byte *, size_t)`.
+There is some overhead in creating random numbers. So if you need more then one you should use `random(uint8 *, size_t)`.
 
-The improved function takes care if a packet is just to go over the air. It waits until the transmit is finished before setting up for random number generation.
+The improved method takes care if a packet is just to go over the air. It waits until the transmit is finished before setting up for random number generation.
 
 In general you can not receive a wanted packet after setting up for random number generation. This is because of the fact that bandwidth, spreading factor, and coding rate is changed. For this reason I disable the interrupt IRQ_RX_DONE so no accidental receive will disturb us. In fact all interrupts on the SX127# will be disabled to be on the sure side. After finishing the collection of random numbers all the interrupts are restored to the previous state. Before returning all parameters are set to the original state. 
 
