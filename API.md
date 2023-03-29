@@ -15,7 +15,7 @@ Initialize the library with the specified frequency.
 ```arduino
 LoRa.begin(frequency);
 ```
- * `frequency` - frequency in Hz (`433E6`, `866E6`, `915E6`)
+ * `frequency` - frequency in Hz (`433E6`, `868E6`, `915E6`)
 
 Returns `1` on success, `0` on failure.
 
@@ -194,7 +194,7 @@ The `onReceive` callback will be called when a packet is received.
 int rssi = LoRa.packetRssi();
 ```
 
-Returns the RSSI of the received packet.
+Returns the averaged RSSI of the last received packet (dBm).
 
 ### Packet SNR
 
@@ -203,6 +203,14 @@ float snr = LoRa.packetSnr();
 ```
 
 Returns the estimated SNR of the received packet in dB.
+
+## RSSI
+
+```arduino
+int rssi = LoRa.rssi();
+```
+
+Returns the current RSSI of the radio (dBm). RSSI can be read at any time (during packet reception or not)
 
 ### Packet Frequency Error
 
@@ -306,7 +314,7 @@ Change the frequency of the radio.
 ```arduino
 LoRa.setFrequency(frequency);
 ```
- * `frequency` - frequency in Hz (`433E6`, `866E6`, `915E6`)
+ * `frequency` - frequency in Hz (`433E6`, `868E6`, `915E6`)
 
 ### Spreading Factor
 
@@ -329,7 +337,7 @@ LoRa.setSignalBandwidth(signalBandwidth);
 
  * `signalBandwidth` - signal bandwidth in Hz, defaults to `125E3`.
 
-Supported values are `7.8E3`, `10.4E3`, `15.6E3`, `20.8E3`, `31.25E3`, `41.7E3`, `62.5E3`, `125E3`, and `250E3`.
+Supported values are `7.8E3`, `10.4E3`, `15.6E3`, `20.8E3`, `31.25E3`, `41.7E3`, `62.5E3`, `125E3`, `250E3`, and `500E3`.
 
 ### Coding Rate
 
@@ -384,6 +392,17 @@ LoRa.enableInvertIQ();
 
 LoRa.disableInvertIQ();
 ```
+### LNA Gain
+
+Set LNA Gain for better RX sensitivity, by default AGC (Automatic Gain Control) is used and LNA gain is not used.
+
+```arduino
+LoRa.setGain(gain);
+```
+
+ * `gain` - LNA gain
+
+Supported values are between `0` and `6`. If gain is 0, AGC will be enabled and LNA gain will not be used. Else if gain is from 1 to 6, AGC will be disabled and LNA gain will be used.
 
 ## Other functions
 

@@ -18,7 +18,7 @@ void setup() {
 }
 
 void loop() {
-  if (runEvery(1000)) { // repeat every 1000 millis
+  if (runEvery(5000)) { // repeat every 5000 millis
 
     Serial.print("Sending packet non-blocking: ");
     Serial.println(counter);
