@@ -203,7 +203,7 @@ int LoRaClass::endPacket(bool async)
 
 bool LoRaClass::isTransmitting()
 {
-  if ((readRegister(REG_OP_MODE) & B111) == MODE_TX) {
+  if ((readRegister(REG_OP_MODE) & MODE_TX) == MODE_TX) {
     return true;
   }
 
