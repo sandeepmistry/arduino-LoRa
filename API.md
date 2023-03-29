@@ -40,7 +40,7 @@ To save further pins one could connect the reset pin of the MCU with reset pin o
 
 #### Pin dio0 interrupt callbacks
 
-The dio0 pin can be used for transmission finish callback and/or receiving callback, check `onTxDone` and `onReceive`.
+The dio0 pin can be used for channel activity detection callback, transmission finish callback and/or receiving callback, check `onCadDone` , `onTxDone`, and `onReceive`.
 
 ### Set SPI interface
 
@@ -250,6 +250,27 @@ Returns the next byte in the packet or `-1` if no bytes are available.
 
 **Note:** Other Arduino [`Stream` API's](https://www.arduino.cc/en/Reference/Stream) can also be used to read data from the packet
 
+## Channel Activity Detection
+**WARNING**: Channel activity detection callback uses the interrupt pin on the `dio0`, check `setPins` function!
+
+### Register callback
+
+Register a callback function for when channel activity detection has done.
+```arduino
+LoRa.onCadDone(onCadDone);
+
+void onCadDone(boolean signalDetected) {
+  // ...
+}
+```
+ * `onCadDone` - function to call when channel activity detection has done.
+ * `signalDetected` - if `true`, the radio detects the presence of other LoRa signals.
+
+### Channel Activity detection mode
+Puts the radio in channel activity detection mode.
+```arduino
+LoRa.channelActivityDetection();
+```
 ## Other radio modes
 
 ### Idle mode
