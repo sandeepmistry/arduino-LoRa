@@ -586,6 +586,13 @@ void LoRaClass::setLdoFlag()
   writeRegister(REG_MODEM_CONFIG_3, config3);
 }
 
+void LoRaClass::setLdoFlagForced(const boolean ldoOn)
+{
+  uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
+  bitWrite(config3, 3, ldoOn);
+  writeRegister(REG_MODEM_CONFIG_3, config3);
+}
+
 void LoRaClass::setCodingRate4(int denominator)
 {
   if (denominator < 5) {

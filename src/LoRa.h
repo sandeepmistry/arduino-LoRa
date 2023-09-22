@@ -75,6 +75,7 @@ public:
   void setCodingRate4(int denominator);
   void setPreambleLength(long length);
   void setSyncWord(int sw);
+  void setLdoFlagForced(const boolean);
   void enableCrc();
   void disableCrc();
   void enableInvertIQ();
