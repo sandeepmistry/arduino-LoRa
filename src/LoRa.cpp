@@ -639,6 +639,17 @@ void LoRaClass::disableInvertIQ()
   writeRegister(REG_INVERTIQ2, 0x1d);
 }
 
+void LoRaClass::enableLowDataRateOptimize()
+{
+   setLdoFlagForced(true);
+}
+
+void LoRaClass::disableLowDataRateOptimize()
+{
+   setLdoFlagForced(false);
+}
+
+
 void LoRaClass::setOCP(uint8_t mA)
 {
   uint8_t ocpTrim = 27;

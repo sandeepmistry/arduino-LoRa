@@ -75,11 +75,13 @@ public:
   void setCodingRate4(int denominator);
   void setPreambleLength(long length);
   void setSyncWord(int sw);
-  void setLdoFlagForced(const boolean);
+
   void enableCrc();
   void disableCrc();
   void enableInvertIQ();
   void disableInvertIQ();
+  void enableLowDataRateOptimize();
+  void disableLowDataRateOptimize();
   
   void setOCP(uint8_t mA); // Over Current Protection control
   
@@ -124,6 +126,7 @@ private:
   long _frequency;
   int _packetIndex;
   int _implicitHeaderMode;
+  void setLdoFlagForced(const boolean);
   void (*_onReceive)(int);
   void (*_onCadDone)(boolean);
   void (*_onTxDone)();
