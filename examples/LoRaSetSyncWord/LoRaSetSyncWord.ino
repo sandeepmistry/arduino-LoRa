@@ -4,7 +4,7 @@
   Sends a message every half second, and polls continually
   for new incoming messages. Sets the LoRa radio's Sync Word.
 
-  Spreading factor is basically the radio's network ID. Radios with different
+  The Sync Word is basically the radio's network ID. Radios with different
   Sync Words will not receive each other's transmissions. This is one way you
   can filter out radios you want to ignore, without making an addressing scheme.
 
