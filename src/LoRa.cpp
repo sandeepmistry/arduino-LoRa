@@ -270,9 +270,20 @@ int LoRaClass::packetRssi()
   return (readRegister(REG_PKT_RSSI_VALUE) - (_frequency < RF_MID_BAND_THRESHOLD ? RSSI_OFFSET_LF_PORT : RSSI_OFFSET_HF_PORT));
 }
 
-float LoRaClass::packetSnr()
+int LoRaClass::packetSnr()
 {
-  return ((int8_t)readRegister(REG_PKT_SNR_VALUE)) * 0.25;
+  int8_t snr = readRegister(REG_PKT_SNR_VALUE);
+
+  // check for two's complement negetive value
+  if(snr & 0x80) {
+    // invert value, increment by 1 and divide by 4 with >> 2 to avoid float
+    snr = ((~snr + 1) & 0xFF) >> 2;
+  } else {
+    // positive value only needs to be divided by 4
+    snr = snr >> 2;
+  }
+
+  return snr;
 }
 
 long LoRaClass::packetFrequencyError()

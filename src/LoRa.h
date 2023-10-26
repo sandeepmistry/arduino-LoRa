@@ -42,7 +42,7 @@ public:
 
   int parsePacket(int size = 0);
   int packetRssi();
-  float packetSnr();
+  int packetSnr();
   long packetFrequencyError();
 
   int rssi();
