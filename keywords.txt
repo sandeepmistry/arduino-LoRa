@@ -51,6 +51,8 @@ enableCrc	KEYWORD2
 disableCrc	KEYWORD2
 enableInvertIQ	KEYWORD2
 disableInvertIQ	KEYWORD2
+enableLowDataRateOptimize	KEYWORD2
+disableLowDataRateOptimize	KEYWORD2
 setGain	KEYWORD2
 
 random	KEYWORD2

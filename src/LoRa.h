@@ -79,6 +79,8 @@ public:
   void disableCrc();
   void enableInvertIQ();
   void disableInvertIQ();
+  void enableLowDataRateOptimize();
+  void disableLowDataRateOptimize();
   
   void setOCP(uint8_t mA); // Over Current Protection control
   
@@ -107,6 +109,7 @@ private:
   long getSignalBandwidth();
 
   void setLdoFlag();
+  void setLdoFlagForced(const boolean);
 
   uint8_t readRegister(uint8_t address);
   void writeRegister(uint8_t address, uint8_t value);
