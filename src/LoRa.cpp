@@ -201,6 +201,9 @@ int LoRaClass::endPacket(bool async)
     }
     // clear IRQ's
     writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
+#ifdef ARDUINO_SAMD_MKRWAN1310
+    writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
+#endif
   }
 
   return 1;
@@ -235,6 +238,9 @@ int LoRaClass::parsePacket(int size)
 
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
+#ifdef ARDUINO_SAMD_MKRWAN1310
+  writeRegister(REG_IRQ_FLAGS, irqFlags);
+#endif
 
   if ((irqFlags & IRQ_RX_DONE_MASK) && (irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
     // received a packet
