@@ -75,7 +75,6 @@ public:
   void setCodingRate4(int denominator);
   void setPreambleLength(long length);
   void setSyncWord(int sw);
-
   void enableCrc();
   void disableCrc();
   void enableInvertIQ();
@@ -110,6 +109,7 @@ private:
   long getSignalBandwidth();
 
   void setLdoFlag();
+  void setLdoFlagForced(const boolean);
 
   uint8_t readRegister(uint8_t address);
   void writeRegister(uint8_t address, uint8_t value);
@@ -126,7 +126,6 @@ private:
   long _frequency;
   int _packetIndex;
   int _implicitHeaderMode;
-  void setLdoFlagForced(const boolean);
   void (*_onReceive)(int);
   void (*_onCadDone)(boolean);
   void (*_onTxDone)();

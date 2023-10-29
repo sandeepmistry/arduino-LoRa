@@ -649,7 +649,6 @@ void LoRaClass::disableLowDataRateOptimize()
    setLdoFlagForced(false);
 }
 
-
 void LoRaClass::setOCP(uint8_t mA)
 {
   uint8_t ocpTrim = 27;
