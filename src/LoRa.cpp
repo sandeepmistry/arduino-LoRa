@@ -575,11 +575,20 @@ void LoRaClass::setSignalBandwidth(long sbw)
 
 void LoRaClass::setLdoFlag()
 {
-  // Section 4.1.1.5
-  long symbolDuration = 1000 / ( getSignalBandwidth() / (1L << getSpreadingFactor()) ) ;
+  // Set Low data rate optimization flag when symbol longer than 16 mS
+long bandwidth = getSignalBandwidth();
+int datarate = getSpreadingFactor();
+boolean ldoOn = false;
 
-  // Section 4.1.1.6
-  boolean ldoOn = symbolDuration > 16;
+           if( ( ( bandwidth == 125E3 ) && ( ( datarate == 11 ) || ( datarate == 12 ) ) ) ||
+                ( ( bandwidth == 250E3 ) && ( datarate == 12 ) ) )
+            {
+                ldoOn = true;;
+            }
+            else
+            {
+                ldoOn = false;;
+            }
 
   uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
   bitWrite(config3, 3, ldoOn);
