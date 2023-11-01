@@ -44,6 +44,7 @@ public:
   int packetRssi();
   float packetSnr();
   long packetFrequencyError();
+  bool rxSignalDetected();
 
   int rssi();
 
