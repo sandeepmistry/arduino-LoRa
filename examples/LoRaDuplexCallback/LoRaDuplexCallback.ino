@@ -92,7 +92,7 @@ void onReceive(int packetSize) {
   }
 
   // if the recipient isn't this device or broadcast,
-  if (recipient != localAddress && recipient != 0xFF) {
+  if (recipient != localAddress && recipient != destination) {
     Serial.println("This message is not for me.");
     return;                             // skip rest of function
   }
