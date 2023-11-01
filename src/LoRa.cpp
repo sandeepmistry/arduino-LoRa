@@ -690,7 +690,43 @@ void LoRaClass::setGain(uint8_t gain)
 
 byte LoRaClass::random()
 {
-  return readRegister(REG_RSSI_WIDEBAND);
+  uint8_t currMode = readRegister(REG_OP_MODE);
+  uint8_t retVal = 0, bits=7;
+  void (*_prevOnReceive)(int) = NULL;
+  
+  while(isTransmitting()) yield();
+
+  //We need to be listening to radio-traffic in order to generate random numbers
+  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)){
+#ifndef ARDUINO_SAMD_MKRWAN1300
+    _prevOnReceive = _onReceive;
+    onReceive(NULL);
+    receive();
+#else
+    explicitHeaderMode();
+    writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
+#endif
+    delay(1);
+    }
+  retVal = readRegister(REG_RSSI_WIDEBAND);
+  while(bits--) {
+    retVal<<=1;
+    while(1){
+      // implement a basic von Neumann Extractor
+      uint8_t a=(readRegister(REG_RSSI_WIDEBAND) & 1);
+      if(a != (readRegister(REG_RSSI_WIDEBAND) & 1)){
+        // put random, whitened bit in n
+        retVal |= a;
+        break;
+      }
+    }
+  }
+  //Put the radio in the same mode as it was
+  if(currMode != (MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS)) writeRegister(REG_OP_MODE, currMode);
+#ifndef ARDUINO_SAMD_MKRWAN1300
+  if(_prevOnReceive) onReceive(_prevOnReceive);
+#endif
+  return retVal;
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)
