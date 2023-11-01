@@ -23,6 +23,7 @@
 #define REG_RSSI_VALUE           0x1b
 #define REG_MODEM_CONFIG_1       0x1d
 #define REG_MODEM_CONFIG_2       0x1e
+#define REG_SYMB_TIMEOUT_LSB	 0x1f
 #define REG_PREAMBLE_MSB         0x20
 #define REG_PREAMBLE_LSB         0x21
 #define REG_PAYLOAD_LENGTH       0x22
@@ -615,6 +616,15 @@ void LoRaClass::setPreambleLength(long length)
 void LoRaClass::setSyncWord(int sw)
 {
   writeRegister(REG_SYNC_WORD, sw);
+}
+
+void LoRaClass::setRxSingleTimeout(uint16_t symbols) 
+{
+	if (symbols > 1023) {
+		symbols = 1023;
+	}
+	writeRegister(REG_MODEM_CONFIG_2, readRegister(REG_MODEM_CONFIG_2) | (symbols >> 8));
+	writeRegister(REG_SYMB_TIMEOUT_LSB, (symbols & 0xFF));
 }
 
 void LoRaClass::enableCrc()
