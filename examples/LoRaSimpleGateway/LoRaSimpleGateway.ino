@@ -32,6 +32,8 @@ const long frequency = 915E6;  // LoRa Frequency
 const int csPin = 10;          // LoRa radio chip select
 const int resetPin = 9;        // LoRa radio reset
 const int irqPin = 2;          // change for your board; must be a hardware interrupt pin
+int packetReceived = 0;        // keeps track of packetReceived for onReceiveCallback
+bool txDone  = false;          // keeps track of txDone for onTxDone
 
 void setup() {
   Serial.begin(9600);                   // initialize serial
@@ -52,12 +54,22 @@ void setup() {
   Serial.println("Rx: invertIQ disable");
   Serial.println();
 
-  LoRa.onReceive(onReceive);
-  LoRa.onTxDone(onTxDone);
+  // register the receive callback
+  // onReceive calls interrupt internally. should run only tiny amount of code
+  // any heavylifting should handled in the loop
+  // also, should not contain any timer based delay calls
+  LoRa.onReceive([](int packetLength) { packetReceived = packetLength; });
+
+  // onTxDone calls interrupt internally. should run only tiny amount of code
+  // any heavylifting should handled in the loop
+  // also, should not contain any timer based delay calls
+  LoRa.onTxDone([] { txDone = true; });
   LoRa_rxMode();
 }
 
 void loop() {
+  if (txDone) onTxDone();
+  if (packetReceived) onReceive();
   if (runEvery(5000)) { // repeat every 5000 millis
 
     String message = "HeLoRa World! ";
@@ -87,7 +99,7 @@ void LoRa_sendMessage(String message) {
   LoRa.endPacket(true);                 // finish packet and send it
 }
 
-void onReceive(int packetSize) {
+void onReceive() {
   String message = "";
 
   while (LoRa.available()) {
@@ -96,11 +108,17 @@ void onReceive(int packetSize) {
 
   Serial.print("Gateway Receive: ");
   Serial.println(message);
+
+  packetReceived = 0;                   // reset packetReceived so that
+                                        // onReceive only runs once per packet
 }
 
 void onTxDone() {
   Serial.println("TxDone");
   LoRa_rxMode();
+
+  txDone = false;                       // reset packetReceived so that
+                                        // onTxDone only runs once per tx
 }
 
 boolean runEvery(unsigned long interval)
