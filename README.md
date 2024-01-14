@@ -25,7 +25,7 @@ There is an description how to generate random numbers in Application Note AN120
 
 To generate an N bit random number, perform N read operation of the register RegRssiWideband (address 0x2c) and use the LSB of the fetched value. The value from RegRssiWideband is derived from a wideband (4MHz) signal strength at the receiver input and the LSB of this value constantly and randomly changes.
 
-Doing so gives this [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24.png). It looks like bit '1' is prefered in comparion to bit '0'. So binary numbers with many '1' occure more often. But we get the whole range of possible numbers.
+Doing so gives this [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24.png). It looks like bit '1' is prefered in comparison to bit '0'. So binary numbers with many '1' occure more often. But we get the whole range of possible numbers.
 
 Last, we add a basic von Neumann extractor which  produce a uniform output even if the distribution of input bits is not uniform so long as each bit has the same probability of being one and there is no correlation between successive bits (see [Bernoulli_sequence@wikipedia](https://en.wikipedia.org/wiki/Bernoulli_process#Bernoulli_sequence) and [Randomness_extractor@wikipedia](https://en.wikipedia.org/wiki/Randomness_extractor)). This extractor is whitening some LSBs of RSSI wide-band measurements for each random byte. The [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24-Neumann.png) shows random numbers without bias. The function reproduces the mean value when we pull enough numbers.
 
