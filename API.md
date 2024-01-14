@@ -408,10 +408,42 @@ Supported values are between `0` and `6`. If gain is 0, AGC will be enabled and 
 
 ### Random
 
-Generate a random byte, based on the Wideband RSSI measurement.
+Generate random bytes, based on Wideband RSSI measurements. The least significant bit (LSB) of each measurement is fed in a [Basic von Neumann extractor](https://en.wikipedia.org/wiki/Bernoulli_process#Bernoulli_sequence) for additional whitening.
 
 ```
 byte b = LoRa.random();
 ```
 
 Returns random byte.
+
+```
+LoRa.random(uint8_t *buffer, size_t size);
+```
+
+
+ * `buffer` - pointer to an array of bytes
+ * `size`   - size of the buffer in bytes
+
+Returns nothing but the buffer will be filled with `size` random bytes.
+ 
+If you need more than one byte it is recommended to use the second function due to some overhead.
+ 
+The LoRa module is put in a receiving mode with configuration as suggested in AN1200.24 from Semtech. Before changing the mode all pending transmits are send. After collecting the random numbers the module is reconfigured to the state it has before calling this function. During the collection of the random numbers no packets can be received.
+ 
+The pseudorandom number sequence test program [ENT](http://www.fourmilab.ch/random/) gives quite good results when fed with random bytes generated with a HopeRF RFW95 module and this function:
+ 
+Entropy = 7.999980 bits per byte.
+
+Optimum compression would reduce the size of this 8757184 byte file by 0 percent.
+
+Chi square distribution for 8757184 samples is 247.56, and randomly
+would exceed this value 61.91 percent of the times.
+
+Arithmetic mean value of data bytes is 127.5110 (127.5 = random).
+
+Monte Carlo value for Pi is 3.142532185 (error 0.03 percent).
+
+Serial correlation coefficient is 0.000407 (totally uncorrelated = 0.0).
+
+You can get around 1000 bytes/s with an ATmega328p and a HopeRF RFW95 module.
+For more information see [RANDOM.md](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/RANDOM.md).

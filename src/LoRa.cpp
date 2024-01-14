@@ -16,6 +16,7 @@
 #define REG_FIFO_TX_BASE_ADDR    0x0e
 #define REG_FIFO_RX_BASE_ADDR    0x0f
 #define REG_FIFO_RX_CURRENT_ADDR 0x10
+#define REG_IRQ_FLAGS_MASK       0x11
 #define REG_IRQ_FLAGS            0x12
 #define REG_RX_NB_BYTES          0x13
 #define REG_PKT_SNR_VALUE        0x19
@@ -64,6 +65,12 @@
 #define RSSI_OFFSET_LF_PORT      164
 
 #define MAX_PKT_LENGTH           255
+
+// Setup random number generation
+#define RNDM_SIGNAL_BANDWIDTH 0x70  // 125E3
+#define RNDM_CODING_RATE      0x02  // 4/5
+#define RNDM_HEADER_MODE      0x00  // explicit heade mode
+#define RNDM_SPREADING_FACTOR 0x70  // 7
 
 #if (ESP8266 || ESP32)
     #define ISR_PREFIX ICACHE_RAM_ATTR
@@ -688,9 +695,65 @@ void LoRaClass::setGain(uint8_t gain)
   }
 }
 
-byte LoRaClass::random()
+byte LoRaClass::rssi_wideband()
 {
   return readRegister(REG_RSSI_WIDEBAND);
+}
+
+// As suggested in AN1200.24 from Semtech with basic von Neumann
+// extractor (see
+// https://en.wikipedia.org/wiki/Bernoulli_process#Bernoulli_sequence)
+void LoRaClass::random0(uint8_t *buffer, size_t size)
+{
+  for(size_t i=size; i--;){
+    uint8_t bit, nbr=0, j=8;
+    
+    while(j)
+      if((bit=readRegister(REG_RSSI_WIDEBAND) & 0x1)!=
+	 (readRegister(REG_RSSI_WIDEBAND) & 0x1)){
+	nbr += nbr + bit;
+	j--;
+      }
+
+    *buffer++=nbr;
+  }
+}
+
+void LoRaClass::random(uint8_t *buffer, size_t size)
+{
+  // Waiting until send is finished
+  while ((readRegister(REG_OP_MODE) & MODE_TX) == MODE_TX)
+    yield();
+  
+  // Saving current state
+  uint8_t crntOpMode=readRegister(REG_OP_MODE);
+  uint8_t crntModemConfig1=readRegister(REG_MODEM_CONFIG_1);
+  uint8_t crntModemConfig2=readRegister(REG_MODEM_CONFIG_2);
+  uint8_t crntIRQFlagsMask=readRegister(REG_IRQ_FLAGS_MASK);
+
+  // Disable all interrupts (so we won't receive a packet)
+  writeRegister(REG_IRQ_FLAGS_MASK, 0xFF);
+  
+  // Setup for random number generation
+  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
+  writeRegister(REG_MODEM_CONFIG_1,RNDM_SIGNAL_BANDWIDTH|RNDM_CODING_RATE|RNDM_HEADER_MODE);
+  writeRegister(REG_MODEM_CONFIG_2,RNDM_SPREADING_FACTOR);
+
+  // Collecting random numbers
+  random0(buffer, size);
+
+  // Restoring current state
+  writeRegister(REG_MODEM_CONFIG_1, crntModemConfig1);
+  writeRegister(REG_MODEM_CONFIG_2, crntModemConfig2);
+  writeRegister(REG_OP_MODE, crntOpMode);
+  writeRegister(REG_IRQ_FLAGS_MASK, crntIRQFlagsMask);
+}
+
+byte LoRaClass::random()
+{
+  byte nbr;
+  random(&nbr, 1);
+  return nbr;
 }
 
 void LoRaClass::setPins(int ss, int reset, int dio0)

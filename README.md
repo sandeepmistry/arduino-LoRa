@@ -1,3 +1,53 @@
+# This Fork
+
+adds support to **real random numbers** to this library.
+
+The new methods are
+ ``` c
+   byte rssi_wideband(); // RSSI wideband meassurement - the original "random" method
+   byte random();
+   void random(uint8_t *buffer, size_t size);
+ ```
+There is some overhead in creating random numbers. So if you need more then one you should use `random(uint8 *, size_t)`.
+
+The improved method takes care if a packet is just to go over the air. It waits until the transmit is finished before setting up for random number generation.
+
+In general you can not receive a wanted packet after setting up for random number generation. This is because of the fact that bandwidth, spreading factor, and coding rate is changed. For this reason I disable the interrupt IRQ_RX_DONE so no accidental receive will disturb us. In fact all interrupts on the SX127# will be disabled to be on the sure side. After finishing the collection of random numbers all the interrupts are restored to the previous state. Before returning all parameters are set to the original state. 
+
+A long time ago I suggested change request [#496](https://github.com/sandeepmistry/arduino-LoRa/pull/496) but until now nothing happend.
+
+If you need not only a palmful random numbers you can have a look at library [LoRandom](https://github.com/Kongduino/LoRandom).
+
+## How is it done?
+It first renames the original function `byte random()` to `byte rssi_wideband()` as this is what this function does! It depends on the location of the meassurement and gives only random values from 0 to MAX with MAX<<255. The result (see [here](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-widebandRSSI.png)) looks strongly biased. In my case only numbers between 0 and 31 are returned! The cureves are for 20, 50, 200, 1000, ... samples. The more samples you have the better shows the bias up.
+
+There is an description how to generate random numbers in Application Note AN1200.24 from Semtech.  See Chapter 4 [Random Number Generation for Cryptography](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/440000001NAw/7YN8ZamV70_xR.vPDAAAshm.0Wt4jmRX0nOKkOzQqiI).
+
+To generate an N bit random number, perform N read operation of the register RegRssiWideband (address 0x2c) and use the LSB of the fetched value. The value from RegRssiWideband is derived from a wideband (4MHz) signal strength at the receiver input and the LSB of this value constantly and randomly changes.
+
+Doing so gives this [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24.png). It looks like bit '1' is prefered in comparison to bit '0'. So binary numbers with many '1' occure more often. But we get the whole range of possible numbers.
+
+Last, we add a basic von Neumann extractor which  produce a uniform output even if the distribution of input bits is not uniform so long as each bit has the same probability of being one and there is no correlation between successive bits (see [Bernoulli_sequence@wikipedia](https://en.wikipedia.org/wiki/Bernoulli_process#Bernoulli_sequence) and [Randomness_extractor@wikipedia](https://en.wikipedia.org/wiki/Randomness_extractor)). This extractor is whitening some LSBs of RSSI wide-band measurements for each random byte. The [result](https://github.com/plybrd/arduino-LoRa/blob/master/doc-random/random-asAN1200.24-Neumann.png) shows random numbers without bias. The function reproduces the mean value when we pull enough numbers.
+
+**Using the program [ENT](http://www.fourmilab.ch/random/) from fourmilab gives**
+
+### For the new random function of this library
+ - Entropy = 7.999980 bits per byte.
+ - Optimum compression would reduce the size of this 8757184 byte file by 0 percent.
+ - Chi square distribution for 8757184 samples is 247.56, and randomly would exceed this value 61.91 percent of the times.
+ - Arithmetic mean value of data bytes is 127.5110 (127.5 = random).
+ - Monte Carlo value for Pi is 3.142532185 (error 0.03 percent).
+ - Serial correlation coefficient is 0.000407 (totally uncorrelated = 0.0).
+
+### For rssi_wideband() ( sandeepmistry's "random" function)
+- Entropy = 3.910721 bits per byte.
+ - Optimum compression would reduce the size of this 11800167 byte file by 51 percent.
+ - Chi square distribution for 11800167 samples is 311806630.27, and randomly would exceed this value less than 0.01 percent of the times.
+ - Arithmetic mean value of data bytes is 14.9272 (127.5 = random).
+ - Monte Carlo value for Pi is 4.000000000 (error 27.32 percent).
+ - Serial correlation coefficient is 0.000269 (totally uncorrelated = 0.0).
+
+
 # Arduino LoRa
 
 [![Build Status](https://travis-ci.org/sandeepmistry/arduino-LoRa.svg?branch=master)](https://travis-ci.org/sandeepmistry/arduino-LoRa)
