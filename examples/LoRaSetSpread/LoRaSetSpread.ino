@@ -10,7 +10,7 @@
   can filter out radios you want to ignore, without making an addressing scheme.
 
   Spreading factor affects reliability of transmission at high rates, however,
-  so avoid a hugh spreading factor when you're sending continually.
+  so avoid a huge spreading factor when you're sending continually.
 
   See the Semtech datasheet, http://www.semtech.com/images/datasheet/sx1276.pdf
   for more on Spreading Factor.

@@ -48,6 +48,7 @@
 #define MODE_TX                  0x03
 #define MODE_RX_CONTINUOUS       0x05
 #define MODE_RX_SINGLE           0x06
+#define MODE_CAD                 0x07
 
 // PA config
 #define PA_BOOST                 0x80
@@ -56,6 +57,8 @@
 #define IRQ_TX_DONE_MASK           0x08
 #define IRQ_PAYLOAD_CRC_ERROR_MASK 0x20
 #define IRQ_RX_DONE_MASK           0x40
+#define IRQ_CAD_DONE_MASK          0x04
+#define IRQ_CAD_DETECTED_MASK      0x01
 
 #define RF_MID_BAND_THRESHOLD    525E6
 #define RSSI_OFFSET_HF_PORT      157
@@ -83,6 +86,7 @@ LoRaClass::LoRaClass() :
   _packetIndex(0),
   _implicitHeaderMode(0),
   _onReceive(NULL),
+  _onCadDone(NULL),
   _onTxDone(NULL)
 {
   // overide Stream timeout value
@@ -281,14 +285,14 @@ float LoRaClass::packetSnr()
 long LoRaClass::packetFrequencyError()
 {
   int32_t freqError = 0;
-  freqError = static_cast<int32_t>(readRegister(REG_FREQ_ERROR_MSB) & B111);
+  freqError = static_cast<int32_t>(readRegister(REG_FREQ_ERROR_MSB) & 0b111);
   freqError <<= 8L;
   freqError += static_cast<int32_t>(readRegister(REG_FREQ_ERROR_MID));
   freqError <<= 8L;
   freqError += static_cast<int32_t>(readRegister(REG_FREQ_ERROR_LSB));
 
-  if (readRegister(REG_FREQ_ERROR_MSB) & B1000) { // Sign bit is on
-     freqError -= 524288; // B1000'0000'0000'0000'0000
+  if (readRegister(REG_FREQ_ERROR_MSB) & 0b1000) { // Sign bit is on
+     freqError -= 524288; // 0b1000'0000'0000'0000'0000
   }
 
   const float fXtal = 32E6; // FXOSC: crystal oscillator (XTAL) frequency (2.5. Chip Specification, p. 14)
@@ -384,6 +388,24 @@ void LoRaClass::onReceive(void(*callback)(int))
   }
 }
 
+void LoRaClass::onCadDone(void(*callback)(boolean))
+{
+  _onCadDone = callback;
+
+  if (callback) {
+    pinMode(_dio0, INPUT);
+#ifdef SPI_HAS_NOTUSINGINTERRUPT
+    SPI.usingInterrupt(digitalPinToInterrupt(_dio0));
+#endif
+    attachInterrupt(digitalPinToInterrupt(_dio0), LoRaClass::onDio0Rise, RISING);
+  } else {
+    detachInterrupt(digitalPinToInterrupt(_dio0));
+#ifdef SPI_HAS_NOTUSINGINTERRUPT
+    SPI.notUsingInterrupt(digitalPinToInterrupt(_dio0));
+#endif
+  }
+}
+
 void LoRaClass::onTxDone(void(*callback)())
 {
   _onTxDone = callback;
@@ -416,6 +438,12 @@ void LoRaClass::receive(int size)
   }
 
   writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_CONTINUOUS);
+}
+
+void LoRaClass::channelActivityDetection(void)
+{
+  writeRegister(REG_DIO_MAPPING_1, 0x80);// DIO0 => CADDONE
+  writeRegister(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_CAD);
 }
 #endif
 
@@ -565,6 +593,13 @@ void LoRaClass::setLdoFlag()
   writeRegister(REG_MODEM_CONFIG_3, config3);
 }
 
+void LoRaClass::setLdoFlagForced(const boolean ldoOn)
+{
+  uint8_t config3 = readRegister(REG_MODEM_CONFIG_3);
+  bitWrite(config3, 3, ldoOn);
+  writeRegister(REG_MODEM_CONFIG_3, config3);
+}
+
 void LoRaClass::setCodingRate4(int denominator)
 {
   if (denominator < 5) {
@@ -609,6 +644,16 @@ void LoRaClass::disableInvertIQ()
 {
   writeRegister(REG_INVERTIQ,  0x27);
   writeRegister(REG_INVERTIQ2, 0x1d);
+}
+
+void LoRaClass::enableLowDataRateOptimize()
+{
+   setLdoFlagForced(true);
+}
+
+void LoRaClass::disableLowDataRateOptimize()
+{
+   setLdoFlagForced(false);
 }
 
 void LoRaClass::setOCP(uint8_t mA)
@@ -759,7 +804,11 @@ void LoRaClass::handleDio0Rise()
   // clear IRQ's
   writeRegister(REG_IRQ_FLAGS, irqFlags);
 
-  if ((irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
+  if ((irqFlags & IRQ_CAD_DONE_MASK) != 0) {
+    if (_onCadDone) {
+      _onCadDone((irqFlags & IRQ_CAD_DETECTED_MASK) != 0);
+    }
+  } else if ((irqFlags & IRQ_PAYLOAD_CRC_ERROR_MASK) == 0) {
 
     if ((irqFlags & IRQ_RX_DONE_MASK) != 0) {
       // received a packet
@@ -774,8 +823,7 @@ void LoRaClass::handleDio0Rise()
       if (_onReceive) {
         _onReceive(packetLength);
       }
-    }
-    else if ((irqFlags & IRQ_TX_DONE_MASK) != 0) {
+    } else if ((irqFlags & IRQ_TX_DONE_MASK) != 0) {
       if (_onTxDone) {
         _onTxDone();
       }
@@ -797,14 +845,12 @@ uint8_t LoRaClass::singleTransfer(uint8_t address, uint8_t value)
 {
   uint8_t response;
 
-  digitalWrite(_ss, LOW);
-
   _spi->beginTransaction(_spiSettings);
+  digitalWrite(_ss, LOW);
   _spi->transfer(address);
   response = _spi->transfer(value);
-  _spi->endTransaction();
-
   digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
 
   return response;
 }
